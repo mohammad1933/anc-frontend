@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    @apply bg-atelier-obsidian font-body text-atelier-ivory antialiased;
+  }
+
+  ::selection {
+    background: rgba(184, 147, 90, 0.35);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #3a342c transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #3a342c;
+    border-radius: 4px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  .atelier-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 2px;
+    border-radius: 999px;
+    background: #3a342c;
+    outline: none;
+  }
+
+  .atelier-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 13px;
+    width: 13px;
+    border-radius: 999px;
+    background: #d9b77e;
+    border: 2px solid #14120f;
+    cursor: pointer;
+    transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .atelier-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  .atelier-slider::-moz-range-thumb {
+    height: 13px;
+    width: 13px;
+    border-radius: 999px;
+    background: #d9b77e;
+    border: 2px solid #14120f;
+    cursor: pointer;
+  }
+}
