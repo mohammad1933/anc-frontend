@@ -52,7 +52,8 @@ const navLinks = [
   { label: "CONTACT", to: "/contact" },
   { label: "FABRIC MOCKUP", to: "/mockup" },
   { label: "SERVICES", to: "/services" },
-  { label: "ABOUT US", to: "/#about" },
+  { label: "ABOUT US", to: "/about-us" },
+  { label: "DASHBOARD", to: "/dashboard" },
 ];
 
 // ── Navbar ─────────────────────────────────────────────────────────────────
@@ -107,7 +108,7 @@ const Navbar: React.FC = () => {
           >
             EN/AR
           </button>
-          <button
+          <Link to="/request-sample"
             style={{
               backgroundColor: "#2C2A26",
               color: "#FFFFFF",
@@ -120,7 +121,7 @@ const Navbar: React.FC = () => {
             className="hover:opacity-90 transition-opacity"
           >
             REQUEST SAMPLE
-          </button>
+          </Link>
         </div>
 
         <button className="md:hidden" style={{ color: "#1A1814" }} onClick={() => setOpen(!open)}>
@@ -156,12 +157,12 @@ const Navbar: React.FC = () => {
               </Link>
             )
           )}
-          <button
+          <Link to="/request-sample"
             style={{ backgroundColor: "#2C2A26", color: "#fff", fontSize: "11px", padding: "8px 18px", borderRadius: "4px" }}
             className="font-semibold w-full"
           >
             REQUEST SAMPLE
-          </button>
+          </Link>
         </div>
       )}
     </nav>

@@ -136,7 +136,8 @@ const navLinks = [
   { label: "CONTACT", to: "/contact" },
   { label: "FABRIC MOCKUP", to: "/mockup" },
   { label: "SERVICES", to: "/services" },
-  { label: "ABOUT US", to: "#about" },
+  { label: "ABOUT US", to: "/about-us" },
+  { label: "DASHBOARD", to: "/dashboard" },
 ];
 
 const CatalogsNavbar: React.FC = () => {
@@ -204,7 +205,7 @@ const CatalogsNavbar: React.FC = () => {
           >
             EN/AR
           </button>
-          <button
+          <Link to="/request-sample"
             style={{
               backgroundColor: "#C8A45A",
               color: "#FFFFFF",
@@ -216,7 +217,7 @@ const CatalogsNavbar: React.FC = () => {
             className="font-semibold hover:opacity-90 transition-opacity"
           >
             REQUEST SAMPLE
-          </button>
+          </Link>
         </div>
 
         <button className="md:hidden" style={{ color: "#1A1814" }} onClick={() => setMobileOpen(!mobileOpen)}>
@@ -241,12 +242,12 @@ const CatalogsNavbar: React.FC = () => {
               </Link>
             )
           )}
-          <button
+          <Link to="/request-sample"
             style={{ backgroundColor: "#C8A45A", color: "#fff", fontSize: "11px", padding: "8px 18px", borderRadius: "4px" }}
             className="font-semibold w-full"
           >
             REQUEST SAMPLE
-          </button>
+          </Link>
         </div>
       )}
     </nav>
@@ -520,8 +521,8 @@ const CatalogsFooter: React.FC = () => (
           <p style={{ color: "#1A1814", fontSize: "11px", letterSpacing: "0.12em", fontWeight: 700 }} className="uppercase mb-4">
             Company
           </p>
-          {["Services", "About Us", "Contact", "Privacy Policy"].map((item) => (
-            <a key={item} href="#"
+          {["Services", "About Us", "Contact", "FAQ", "Privacy Policy"].map((item) => (
+            item === "FAQ" ? <Link key={item} to="/faq" style={{ color: "#8A857E", fontSize: "12px", display: "block", marginBottom: "10px" }}>FAQ</Link> : <a key={item} href="#"
               style={{ color: "#8A857E", fontSize: "12px", display: "block", marginBottom: "10px" }}
               className="hover:text-stone-800 transition-colors">
               {item}
