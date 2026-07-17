@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { img as textileImages } from "@/pages/AboutUs";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const MenuIcon: React.FC = () => (
@@ -57,7 +58,7 @@ const navLinks = [
 ];
 
 // ── Navbar ─────────────────────────────────────────────────────────────────
-const Navbar: React.FC = () => {
+export const LegacyProductNavbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
@@ -170,7 +171,7 @@ const Navbar: React.FC = () => {
 };
 
 // ── Footer ─────────────────────────────────────────────────────────────────
-const Footer: React.FC = () => (
+export const LegacyProductFooter: React.FC = () => (
   <footer style={{ backgroundColor: "#FFFFFF", borderTop: "1px solid #EAE8E3" }}>
     <div className="max-w-7xl mx-auto px-6 pt-12 pb-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
@@ -298,22 +299,20 @@ const Footer: React.FC = () => (
 const Product: React.FC = () => {
   return (
     <div style={{ backgroundColor: "#FAFAF8", fontFamily: "Inter, system-ui, sans-serif", minHeight: "100vh" }} className="flex flex-col">
-      <Navbar />
 
       <main className="flex-1" style={{ paddingBottom: "80px" }}>
         
         {/* Breadcrumb & Header */}
         <div className="max-w-7xl mx-auto px-6 pt-10 pb-8">
           <p style={{ color: "#1A1814", fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 600, marginBottom: "16px" }}>
-            CATALOGS <span style={{ color: "#A8A39C", margin: "0 6px" }}>•</span> VELVET COLLECTION <span style={{ color: "#A8A39C", margin: "0 6px" }}>•</span> ROYAL VELVET
+            CATALOGS <span style={{ color: "#A8A39C", margin: "0 6px" }}>•</span> VELVET <span style={{ color: "#A8A39C", margin: "0 6px" }}>•</span> 8020
           </p>
           <h1 style={{ fontFamily: "Georgia, serif", fontSize: "clamp(32px, 4vw, 42px)", color: "#1A1814", letterSpacing: "-0.01em", marginBottom: "12px", fontWeight: 700 }}>
-            Royal Velvet
+            Velvet 8020
           </h1>
           <p style={{ color: "#6B6560", fontSize: "12px", lineHeight: 1.6, maxWidth: "560px" }}>
-            A masterpiece of textile engineering. Our signature Royal Velvet offers a deep, 
-            light-absorbing pile that creates an unparalleled depth of color and a tactile 
-            experience synonymous with timeless luxury.
+            A luxurious ANC stocked velvet collection for upholstery and refined indoor interiors,
+            available in 75 numbered colors.
           </p>
         </div>
 
@@ -341,7 +340,7 @@ const Product: React.FC = () => {
                 FEATURED FINISH
               </div>
               <img 
-                src="https://picsum.photos/seed/royal-velvet-main/1000/600.jpg" 
+                src={textileImages.velvet} 
                 alt="Royal Velvet" 
                 style={{ width: "100%", height: "auto", aspectRatio: "16/10", objectFit: "cover" }}
               />
@@ -376,9 +375,9 @@ const Product: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-              <img src="https://picsum.photos/seed/royal-velvet-1/400/400.jpg" alt="Detail 1" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover" }} />
-              <img src="https://picsum.photos/seed/royal-velvet-2/400/400.jpg" alt="Detail 2" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover" }} />
-              <img src="https://picsum.photos/seed/royal-velvet-3/400/400.jpg" alt="Detail 3" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover" }} />
+              <img src={textileImages.swatches} alt="Royal velvet color swatches" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover" }} />
+              <img src={textileImages.loom} alt="Royal velvet weave detail" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover" }} />
+              <img src={textileImages.lab} alt="Royal velvet quality inspection" style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover" }} />
             </div>
           </div>
 
@@ -392,29 +391,29 @@ const Product: React.FC = () => {
               <div className="flex gap-4">
                 <span style={{ color: "#C8A45A", marginTop: "2px" }}><CheckShieldIcon /></span>
                 <div>
-                  <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Extreme Durability</p>
-                  <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5 }}>100,000+ Martindale cycles for high-traffic contract use.</p>
+                  <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Ready Stock</p>
+                  <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5 }}>Availability is confirmed when you request a price.</p>
                 </div>
               </div>
               <div className="flex gap-4">
                 <span style={{ color: "#C8A45A", marginTop: "2px" }}><FireIcon /></span>
                 <div>
-                  <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Fire Retardant</p>
-                  <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5 }}>Meets BS 5852 Crib 5 and CAL TB 117-2013 standards.</p>
+                  <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>75 Numbered Colors</p>
+                  <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5 }}>Colors are identified from 8020-01 through 8020-75.</p>
                 </div>
               </div>
               <div className="flex gap-4">
                 <span style={{ color: "#C8A45A", marginTop: "2px" }}><DropletIcon /></span>
                 <div>
-                  <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Stain Resistant</p>
-                  <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5 }}>Treated with nanotechnology for effortless liquid repellency.</p>
+                  <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>From One Meter</p>
+                  <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5 }}>Retail and wholesale orders begin at one meter.</p>
                 </div>
               </div>
               <div className="flex gap-4">
                 <span style={{ color: "#C8A45A", marginTop: "2px" }}><LeafIcon /></span>
                 <div>
-                  <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Sustainable Origin</p>
-                  <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5 }}>OEKO-TEX® certified, produced with zero-waste water recycling.</p>
+                  <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 600, marginBottom: "4px" }}>Free A4 Samples</p>
+                  <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5 }}>A customer may request up to three free samples.</p>
                 </div>
               </div>
             </div>
@@ -506,7 +505,7 @@ const Product: React.FC = () => {
                   Complementary Collections
                 </h2>
                 <p style={{ color: "#6B6560", fontSize: "12px" }}>
-                  Pair Royal Velvet with our lighter linens or metallic accents.
+                  Pair Velvet 8020 with linen, sheer, or blackout fabrics from our stocked ANC range.
                 </p>
               </div>
               <Link to="/catalogs" style={{ color: "#8A692D", fontSize: "10px", letterSpacing: "0.15em", fontWeight: 700, textTransform: "uppercase", borderBottom: "1px solid #8A692D", paddingBottom: "2px" }} className="hover:opacity-80 transition-opacity">
@@ -516,9 +515,9 @@ const Product: React.FC = () => {
 
             <div className="grid md:grid-cols-3 gap-6">
               {[
-                { name: "Liquid Silk", cat: "DRAPERY COLLECTION", img: "https://picsum.photos/seed/comp-1/600/400.jpg" },
-                { name: "Nordic Bouclé", cat: "UPHOLSTERY COLLECTION", img: "https://picsum.photos/seed/comp-2/600/400.jpg" },
-                { name: "Brutalist Linen", cat: "NATURAL FIBERS", img: "https://picsum.photos/seed/comp-3/600/400.jpg" }
+                { name: "Liquid Silk", cat: "DRAPERY COLLECTION", img: textileImages.swatches },
+                { name: "Nordic Bouclé", cat: "UPHOLSTERY COLLECTION", img: textileImages.velvet },
+                { name: "Brutalist Linen", cat: "NATURAL FIBERS", img: textileImages.loom }
               ].map(item => (
                 <div key={item.name} style={{ cursor: "pointer" }} className="group">
                   <div style={{ aspectRatio: "16/10", overflow: "hidden", marginBottom: "12px" }}>
@@ -533,7 +532,6 @@ const Product: React.FC = () => {
         </div>
 
       </main>
-      <Footer />
     </div>
   );
 };

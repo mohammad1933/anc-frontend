@@ -32,6 +32,7 @@ interface ConfiguratorState {
 
   setSearchQuery: (query: string) => void;
   uploadFiles: (files: FileList | File[]) => Promise<void>;
+  importFabric: (fabric: Fabric) => void;
   selectFabric: (id: string) => void;
   removeFabric: (id: string) => void;
   updateTransform: (patch: Partial<TextureTransform>) => void;
@@ -105,6 +106,12 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     setActiveFabricId(id);
   }, []);
 
+  const importFabric = useCallback((fabric: Fabric) => {
+    setFabrics((current) => [fabric, ...current.filter((item) => item.id !== fabric.id)]);
+    setActiveFabricId(fabric.id);
+    setTransform(DEFAULT_TEXTURE_TRANSFORM);
+  }, []);
+
   const removeFabric = useCallback((id: string) => {
     setFabrics((prev) => {
       const target = prev.find((f) => f.id === id);
@@ -151,6 +158,7 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     textureResolution,
     setSearchQuery,
     uploadFiles,
+    importFabric,
     selectFabric,
     removeFabric,
     updateTransform,

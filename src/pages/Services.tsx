@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { img as textileImages } from "@/pages/AboutUs";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const MenuIcon: React.FC = () => (
@@ -63,7 +64,7 @@ const navLinks = [
 ];
 
 // ── Navbar ─────────────────────────────────────────────────────────────────
-const Navbar: React.FC = () => {
+export const LegacyServicesNavbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
@@ -144,7 +145,7 @@ const Navbar: React.FC = () => {
 };
 
 // ── Footer ─────────────────────────────────────────────────────────────────
-const Footer: React.FC = () => (
+export const LegacyServicesFooter: React.FC = () => (
   <footer style={{ backgroundColor: "#FFFFFF", borderTop: "1px solid #EAE8E3" }}>
     <div className="max-w-7xl mx-auto px-6 pt-12 pb-8">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
@@ -204,7 +205,6 @@ export const Services: React.FC = () => {
 
   return (
     <div style={{ backgroundColor: "#FAFAF8", fontFamily: "Inter, system-ui, sans-serif", minHeight: "100vh" }} className="flex flex-col">
-      <Navbar />
 
       <main className="flex-1">
         
@@ -225,7 +225,7 @@ export const Services: React.FC = () => {
             </div>
             <div style={{ position: "relative" }}>
               <img 
-                src="https://picsum.photos/seed/anc-fabrics/800/600.jpg" 
+                src={textileImages.swatches} 
                 alt="Refined Textiles" 
                 style={{ width: "100%", height: "auto", objectFit: "cover" }} 
               />
@@ -252,13 +252,13 @@ export const Services: React.FC = () => {
               {/* Card 1 */}
               <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #EAE8E3" }} className="flex flex-col group">
                 <div style={{ position: "relative" }}>
-                  <img src="https://picsum.photos/seed/anc-service1/600/400.jpg" alt="Fabric Supply" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
+                  <img src={textileImages.swatches} alt="Fabric Supply" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
                   <div style={{ position: "absolute", top: "16px", left: "16px", backgroundColor: "#FFFFFF", padding: "4px 8px", fontSize: "10px", fontWeight: 600, color: "#1A1814" }}>01</div>
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
                   <h3 style={{ fontSize: "18px", color: "#1A1814", fontWeight: 600, marginBottom: "12px" }}>Fabric Supply</h3>
                   <p style={{ fontSize: "13px", color: "#6B6560", lineHeight: 1.6, marginBottom: "32px", flex: 1 }}>
-                    Access an extensive library of premium upholstery and drapery fabrics sourced from the world's most prestigious mills.
+                    Choose from ANC stocked velvet, linen, blackout, sheer, chenille, leather, bouclé, and fire-retardant fabrics.
                   </p>
                   <button style={{ border: "1px solid #1A1814", color: "#1A1814", backgroundColor: "transparent", fontSize: "10px", letterSpacing: "0.1em", fontWeight: 600, padding: "12px", width: "100%", textTransform: "uppercase" }} className="hover:bg-stone-900 hover:text-white transition-colors duration-300">
                     INQUIRE NOW
@@ -269,13 +269,13 @@ export const Services: React.FC = () => {
               {/* Card 2 */}
               <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #EAE8E3" }} className="flex flex-col group">
                 <div style={{ position: "relative" }}>
-                  <img src="https://picsum.photos/seed/anc-service2/600/400.jpg" alt="Interior Consultation" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
+                  <img src={textileImages.shop} alt="Interior Consultation" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
                   <div style={{ position: "absolute", top: "16px", left: "16px", backgroundColor: "#FFFFFF", padding: "4px 8px", fontSize: "10px", fontWeight: 600, color: "#1A1814" }}>02</div>
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
-                  <h3 style={{ fontSize: "18px", color: "#1A1814", fontWeight: 600, marginBottom: "12px" }}>Interior Consultation</h3>
+                  <h3 style={{ fontSize: "18px", color: "#1A1814", fontWeight: 600, marginBottom: "12px" }}>Fabric Selection Support</h3>
                   <p style={{ fontSize: "13px", color: "#6B6560", lineHeight: 1.6, marginBottom: "32px", flex: 1 }}>
-                    Collaborative design sessions with our textile experts to select the perfect material after your specific architectural project requirements.
+                    Friendly support for trade professionals and individual customers choosing curtain and upholstery fabrics.
                   </p>
                   <button style={{ border: "1px solid #1A1814", color: "#1A1814", backgroundColor: "transparent", fontSize: "10px", letterSpacing: "0.1em", fontWeight: 600, padding: "12px", width: "100%", textTransform: "uppercase" }} className="hover:bg-stone-900 hover:text-white transition-colors duration-300">
                     INQUIRE NOW
@@ -286,13 +286,13 @@ export const Services: React.FC = () => {
               {/* Card 3 */}
               <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #EAE8E3" }} className="flex flex-col group">
                 <div style={{ position: "relative" }}>
-                  <img src="https://picsum.photos/seed/anc-service3/600/400.jpg" alt="Custom Orders" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
+                  <img src={textileImages.loom} alt="Custom Orders" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
                   <div style={{ position: "absolute", top: "16px", left: "16px", backgroundColor: "#FFFFFF", padding: "4px 8px", fontSize: "10px", fontWeight: 600, color: "#1A1814" }}>03</div>
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
-                  <h3 style={{ fontSize: "18px", color: "#1A1814", fontWeight: 600, marginBottom: "12px" }}>Custom Orders</h3>
+                  <h3 style={{ fontSize: "18px", color: "#1A1814", fontWeight: 600, marginBottom: "12px" }}>Retail & Wholesale</h3>
                   <p style={{ fontSize: "13px", color: "#6B6560", lineHeight: 1.6, marginBottom: "32px", flex: 1 }}>
-                    Bespoke manufacturing capabilities including custom colorways, unique weaving patterns, and specific performance treatments.
+                    Buy any stocked ANC fabric from one meter upward, with prices provided on request and credit subject to management approval.
                   </p>
                   <button style={{ border: "1px solid #1A1814", color: "#1A1814", backgroundColor: "transparent", fontSize: "10px", letterSpacing: "0.1em", fontWeight: 600, padding: "12px", width: "100%", textTransform: "uppercase" }} className="hover:bg-stone-900 hover:text-white transition-colors duration-300">
                     INQUIRE NOW
@@ -303,13 +303,13 @@ export const Services: React.FC = () => {
               {/* Card 4 */}
               <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #EAE8E3" }} className="flex flex-col group">
                 <div style={{ position: "relative" }}>
-                  <img src="https://picsum.photos/seed/anc-service4/600/400.jpg" alt="Sample Delivery" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
+                  <img src={textileImages.velvet} alt="Sample Delivery" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
                   <div style={{ position: "absolute", top: "16px", left: "16px", backgroundColor: "#FFFFFF", padding: "4px 8px", fontSize: "10px", fontWeight: 600, color: "#1A1814" }}>04</div>
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
                   <h3 style={{ fontSize: "18px", color: "#1A1814", fontWeight: 600, marginBottom: "12px" }}>Sample Delivery</h3>
                   <p style={{ fontSize: "13px", color: "#6B6560", lineHeight: 1.6, marginBottom: "32px", flex: 1 }}>
-                    Priority worldwide shipping of physical fabric swatches to ensure the material meets your sensory and visual expectations before order.
+                    Request up to three free A4 samples. Delivery is free in Sharjah and Ajman; courier charges apply elsewhere.
                   </p>
                   <button style={{ border: "1px solid #1A1814", color: "#1A1814", backgroundColor: "transparent", fontSize: "10px", letterSpacing: "0.1em", fontWeight: 600, padding: "12px", width: "100%", textTransform: "uppercase" }} className="hover:bg-stone-900 hover:text-white transition-colors duration-300">
                     INQUIRE NOW
@@ -320,13 +320,13 @@ export const Services: React.FC = () => {
               {/* Card 5 */}
               <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #EAE8E3" }} className="flex flex-col group">
                 <div style={{ position: "relative" }}>
-                  <img src="https://picsum.photos/seed/anc-service5/600/400.jpg" alt="B2B Wholesale" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
+                  <img src={textileImages.old} alt="B2B Wholesale" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
                   <div style={{ position: "absolute", top: "16px", left: "16px", backgroundColor: "#FFFFFF", padding: "4px 8px", fontSize: "10px", fontWeight: 600, color: "#1A1814" }}>05</div>
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
                   <h3 style={{ fontSize: "18px", color: "#1A1814", fontWeight: 600, marginBottom: "12px" }}>B2B Wholesale</h3>
                   <p style={{ fontSize: "13px", color: "#6B6560", lineHeight: 1.6, marginBottom: "32px", flex: 1 }}>
-                    Scalable solutions for furniture manufacturers and retailers with tiered pricing models and dedicated account management support.
+                    Reliable stocked fabrics, competitive pricing, and attentive support for designers, upholsterers, curtain shops, manufacturers, and retailers.
                   </p>
                   <button style={{ border: "1px solid #1A1814", color: "#1A1814", backgroundColor: "transparent", fontSize: "10px", letterSpacing: "0.1em", fontWeight: 600, padding: "12px", width: "100%", textTransform: "uppercase" }} className="hover:bg-stone-900 hover:text-white transition-colors duration-300">
                     INQUIRE NOW
@@ -359,9 +359,9 @@ export const Services: React.FC = () => {
           <div className="max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-2">
               <div className="px-6 py-20 lg:p-24 flex flex-col justify-center">
-                <h2 style={{ fontSize: "24px", color: "#1A1814", fontWeight: 600, marginBottom: "16px" }}>Certified Performance</h2>
+                <h2 style={{ fontSize: "24px", color: "#1A1814", fontWeight: 600, marginBottom: "16px" }}>Fabric for Every Interior</h2>
                 <p style={{ fontSize: "14px", color: "#6B6560", lineHeight: 1.6, marginBottom: "40px", maxWidth: "400px" }}>
-                  Our textiles aren't just beautiful - they are engineered to withstand the rigors of high-traffic commercial environments.
+                  Our stocked range brings together luxury appearance, practical availability, competitive prices, and service you can rely on.
                 </p>
                 <div className="grid grid-cols-2 gap-y-8 gap-x-4">
                   <div className="flex items-center gap-3">
@@ -370,21 +370,21 @@ export const Services: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     <div style={{ color: "#8A692D" }}><DropIcon /></div>
-                    <span style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.05em", color: "#1A1814" }}>STAIN RESISTANT</span>
+                    <span style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.05em", color: "#1A1814" }}>READY STOCK</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div style={{ color: "#8A692D" }}><LeafIcon /></div>
-                    <span style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.05em", color: "#1A1814" }}>ECO-CERTIFIED</span>
+                    <span style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.05em", color: "#1A1814" }}>CURTAIN FABRICS</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div style={{ color: "#8A692D" }}><DiamondIcon /></div>
-                    <span style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.05em", color: "#1A1814" }}>HIGH MARTINDALE</span>
+                    <span style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.05em", color: "#1A1814" }}>UPHOLSTERY FABRICS</span>
                   </div>
                 </div>
               </div>
               <div style={{ position: "relative", minHeight: "400px" }}>
                 <img 
-                  src="https://picsum.photos/seed/anc-lab/800/800.jpg" 
+                  src={textileImages.lab} 
                   alt="Lab Testing" 
                   style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} 
                 />
@@ -419,7 +419,6 @@ export const Services: React.FC = () => {
         </div>
 
       </main>
-      <Footer />
     </div>
   );
 };

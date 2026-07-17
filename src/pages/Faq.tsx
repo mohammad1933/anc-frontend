@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Faq.css";
+import { businessPolicies, company } from "@/constants/company";
 
 const navLinks = [
   ["HOME", "/"],
@@ -13,40 +14,40 @@ const navLinks = [
 
 const sections = [
   {
-    title: "Ordering & MOQ",
+    title: "Ordering & Payment",
     questions: [
-      "What are the minimum order quantities (MOQ) for different fabric types?",
-      "Can I modify an order after the deposit has been paid?",
+      "What is the minimum order quantity?",
+      "Which payment methods do you accept?",
     ],
   },
   {
     title: "Samples",
-    questions: ["Do you offer international sample shipping for showrooms?"],
+    questions: ["How do free A4 samples work?"],
   },
   {
-    title: "Production & Lead Times",
-    questions: ["What are the standard lead times for bespoke manufacturing?"],
+    title: "Stock & Pricing",
+    questions: ["How can I check stock and fabric prices?"],
   },
   {
     title: "Shipping & Logistics",
-    questions: ["What global delivery options are available for large-scale projects?"],
+    questions: ["Where do you deliver and when is delivery free?"],
   },
   {
-    title: "Custom Solutions",
-    questions: ["Can ANC NAJJAR develop proprietary textiles for a specific brand?"],
+    title: "Returns",
+    questions: ["What is your return and replacement policy?"],
   },
 ];
 
 const answers: Record<string, string> = {
-  "What are the minimum order quantities (MOQ) for different fabric types?": "Minimum quantities vary by textile, finish, and production method. Our B2B team will confirm the applicable MOQ with your quotation.",
-  "Can I modify an order after the deposit has been paid?": "Changes are reviewed individually and depend on the current production stage. Please contact your account representative as soon as possible.",
-  "Do you offer international sample shipping for showrooms?": "Yes. We coordinate international sample delivery for approved trade and showroom partners.",
-  "What are the standard lead times for bespoke manufacturing?": "Lead times depend on material availability, specification, and order volume, and are confirmed before production begins.",
-  "What global delivery options are available for large-scale projects?": "Our logistics team supports coordinated air, sea, and road freight for international commercial projects.",
-  "Can ANC NAJJAR develop proprietary textiles for a specific brand?": "Yes. Our bespoke program supports custom color, weave, finish, and performance development for qualified projects.",
+  "What is the minimum order quantity?": businessPolicies.minimumOrder,
+  "Which payment methods do you accept?": businessPolicies.payments,
+  "How do free A4 samples work?": businessPolicies.samples,
+  "How can I check stock and fabric prices?": `${businessPolicies.pricing} Contact us on WhatsApp with the catalog name and color code for current availability.`,
+  "Where do you deliver and when is delivery free?": `${businessPolicies.delivery} ${businessPolicies.sameDay} ${businessPolicies.international}`,
+  "What is your return and replacement policy?": businessPolicies.returns,
 };
 
-function Header() {
+export function LegacyFaqHeader() {
   const [open, setOpen] = useState(false);
   return (
     <header className="fq-header">
@@ -78,7 +79,7 @@ function AccordionRow({ question }: { question: string }) {
   );
 }
 
-function Footer() {
+export function LegacyFaqFooter() {
   return (
     <footer className="fq-footer">
       <div className="fq-footer-grid">
@@ -110,18 +111,17 @@ function Footer() {
 export default function Faq() {
   return (
     <div className="fq-page">
-      <Header />
       <main>
         <section className="fq-hero">
           <span>B2B SUPPORT CENTER</span>
           <h1>Frequently Asked Questions</h1>
-          <p>Comprehensive guide for our global partners regarding specifications, logistics,<br />and bespoke manufacturing processes.</p>
+          <p>Clear information about ordering, samples, stock, delivery, payment, and returns<br />from the {company.name} UAE branch.</p>
         </section>
 
         <section className="fq-content">
           <aside>
             <h2>CATEGORIES</h2>
-            {["ORDERING & MOQ", "SAMPLES", "PRODUCTION", "SHIPPING", "CUSTOM SOLUTIONS"].map((item, index) => (
+            {["ORDERING & PAYMENT", "SAMPLES", "STOCK & PRICING", "DELIVERY", "RETURNS"].map((item, index) => (
               <a href={`#faq-${index}`} key={item}><span>{item}</span><b>→</b></a>
             ))}
           </aside>
@@ -141,7 +141,6 @@ export default function Faq() {
           <div><Link to="/contact">CONTACT US</Link><Link to="/catalogs">DOWNLOAD CATALOG</Link></div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

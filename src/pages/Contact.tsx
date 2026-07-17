@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { img as textileImages } from "@/pages/AboutUs";
+import { businessPolicies, company, whatsappUrl } from "@/constants/company";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const MenuIcon: React.FC = () => (
@@ -52,7 +54,7 @@ const navLinks = [
 ];
 
 // ── Navbar ─────────────────────────────────────────────────────────────────
-const Navbar: React.FC = () => {
+export const LegacyContactNavbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
@@ -133,7 +135,7 @@ const Navbar: React.FC = () => {
 };
 
 // ── Footer ─────────────────────────────────────────────────────────────────
-const Footer: React.FC = () => (
+export const LegacyContactFooter: React.FC = () => (
   <footer style={{ backgroundColor: "#FFFFFF", borderTop: "1px solid #EAE8E3" }}>
     <div className="max-w-7xl mx-auto px-6 pt-12 pb-8">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
@@ -189,7 +191,6 @@ const Footer: React.FC = () => (
 export const Contact: React.FC = () => {
   return (
     <div style={{ backgroundColor: "#FAFAF8", fontFamily: "Inter, system-ui, sans-serif", minHeight: "100vh" }} className="flex flex-col">
-      <Navbar />
 
       <main className="flex-1">
         
@@ -202,8 +203,8 @@ export const Contact: React.FC = () => {
             We're here to help you create <br className="hidden md:block" /> your <span style={{ fontStyle: "italic", fontWeight: 400 }}>perfect space.</span>
           </h1>
           <p style={{ color: "#6B6560", fontSize: "13px", lineHeight: 1.6, maxWidth: "560px" }}>
-            Connect with our specialized design teams for personalized consultations,
-            catalog inquiries, or technical support for your bespoke furniture projects.
+            Contact our Sharjah team for catalog inquiries, stock checks, samples, quotations,
+            wholesale orders, retail orders, and delivery support.
           </p>
         </div>
 
@@ -259,7 +260,7 @@ export const Contact: React.FC = () => {
                     </div>
                     <div>
                       <p style={{ fontSize: "9px", letterSpacing: "0.1em", color: "#8A857E", textTransform: "uppercase", marginBottom: "2px" }}>PHONE</p>
-                      <p style={{ fontSize: "12px", color: "#1A1814", fontWeight: 500 }}>+971 4 123 4567</p>
+                      <a href={company.phoneHref} style={{ fontSize: "12px", color: "#1A1814", fontWeight: 500 }}>{company.phoneDisplay}</a>
                     </div>
                   </div>
                   <div className="flex gap-4">
@@ -268,7 +269,7 @@ export const Contact: React.FC = () => {
                     </div>
                     <div>
                       <p style={{ fontSize: "9px", letterSpacing: "0.1em", color: "#8A857E", textTransform: "uppercase", marginBottom: "2px" }}>WHATSAPP</p>
-                      <p style={{ fontSize: "12px", color: "#1A1814", fontWeight: 500 }}>+971 50 123 4567</p>
+                      <a href={whatsappUrl()} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#1A1814", fontWeight: 500 }}>+971 56 412 7448</a>
                     </div>
                   </div>
                   <div className="flex gap-4">
@@ -277,7 +278,7 @@ export const Contact: React.FC = () => {
                     </div>
                     <div>
                       <p style={{ fontSize: "9px", letterSpacing: "0.1em", color: "#8A857E", textTransform: "uppercase", marginBottom: "2px" }}>EMAIL</p>
-                      <p style={{ fontSize: "12px", color: "#1A1814", fontWeight: 500 }}>hello@ancnajjar.com</p>
+                      <a href={`mailto:${company.email}`} style={{ fontSize: "12px", color: "#1A1814", fontWeight: 500 }}>{company.email}</a>
                     </div>
                   </div>
                   <div className="flex gap-4">
@@ -287,7 +288,7 @@ export const Contact: React.FC = () => {
                     <div>
                       <p style={{ fontSize: "9px", letterSpacing: "0.1em", color: "#8A857E", textTransform: "uppercase", marginBottom: "2px" }}>ADDRESS</p>
                       <p style={{ fontSize: "12px", color: "#1A1814", fontWeight: 500, lineHeight: 1.5 }}>
-                        Building 7, Dubai Design District (d3), Dubai, UAE
+                        {company.address}
                       </p>
                     </div>
                   </div>
@@ -298,16 +299,16 @@ export const Contact: React.FC = () => {
                 <h3 style={{ fontSize: "14px", fontWeight: 600, marginBottom: "20px" }}>Showroom Hours</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between" style={{ fontSize: "11px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "12px" }}>
-                    <span style={{ color: "#A8A39C" }}>Monday - Friday</span>
-                    <span>09:00 - 20:00</span>
+                    <span style={{ color: "#A8A39C" }}>Saturday - Thursday</span>
+                    <span>09:00 - 21:00</span>
                   </div>
                   <div className="flex justify-between" style={{ fontSize: "11px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "12px" }}>
-                    <span style={{ color: "#A8A39C" }}>Saturday</span>
-                    <span>10:00 - 18:00</span>
+                    <span style={{ color: "#A8A39C" }}>Daily Break</span>
+                    <span>14:00 - 16:00</span>
                   </div>
                   <div className="flex justify-between" style={{ fontSize: "11px" }}>
-                    <span style={{ color: "#A8A39C" }}>Sunday</span>
-                    <span style={{ color: "#C8A45A", fontWeight: 500 }}>By Appointment Only</span>
+                    <span style={{ color: "#A8A39C" }}>Friday</span>
+                    <span style={{ color: "#C8A45A", fontWeight: 500 }}>Closed</span>
                   </div>
                 </div>
               </div>
@@ -319,21 +320,21 @@ export const Contact: React.FC = () => {
         <div style={{ backgroundColor: "#EAE8E3", position: "relative", overflow: "hidden" }}>
           
           <img 
-            src="https://picsum.photos/seed/anc-map/1920/600.jpg" 
+            src={textileImages.shop} 
             alt="Map"
             style={{ width: "100%", height: "400px", objectFit: "cover", opacity: 0.6 }} 
           />
           <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
-            <button style={{ backgroundColor: "#1A1814", color: "#FFFFFF", fontSize: "10px", letterSpacing: "0.1em", fontWeight: 600, padding: "12px 24px", borderRadius: "30px", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "8px" }}>
+            <a href={company.mapsUrl} target="_blank" rel="noreferrer" style={{ backgroundColor: "#1A1814", color: "#FFFFFF", fontSize: "10px", letterSpacing: "0.1em", fontWeight: 600, padding: "12px 24px", borderRadius: "30px", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
               <MapPinIcon /> VISIT ANC NAJJAR
-            </button>
+            </a>
           </div>
         </div>
         <div style={{ backgroundColor: "#EAE8E3", paddingBottom: "40px", textAlign: "center" }}>
-           <p style={{ fontFamily: "Georgia, serif", color: "#1A1814", fontSize: "16px", marginBottom: "6px" }}>ANC NAJJAR Showroom</p>
-           <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5, marginBottom: "8px" }}>Unit G-02, The Residences, Burj Khalifa District<br/>Dubai, United Arab Emirates</p>
+           <p style={{ fontFamily: "Georgia, serif", color: "#1A1814", fontSize: "16px", marginBottom: "6px" }}>{company.name}</p>
+           <p style={{ color: "#6B6560", fontSize: "11px", lineHeight: 1.5, marginBottom: "8px" }}>{company.address}</p>
            <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>Contact Us</p>
-           <p style={{ color: "#6B6560", fontSize: "11px" }}>E: info@ancnajjar.com</p>
+           <p style={{ color: "#6B6560", fontSize: "11px" }}>E: {company.email} · T: {company.phoneDisplay}</p>
         </div>
 
         {/* FAQ Section */}
@@ -343,15 +344,15 @@ export const Contact: React.FC = () => {
               Frequently Asked Questions
             </h2>
             <p style={{ color: "#6B6560", fontSize: "12px", textAlign: "center", marginBottom: "40px" }}>
-              Quick answers to common inquiries about our furniture and services.
+              Quick answers about fabric orders, samples, delivery, payment, and returns.
             </p>
 
             <div className="space-y-4">
               {[
-                "Can I request fabric samples for international shipping?",
-                "What is the typical lead time for bespoke furniture?",
-                "Do you provide on-site measurements and consultation?",
-                "Is there a warranty on your textile and furniture collections?"
+                businessPolicies.samples,
+                businessPolicies.delivery,
+                businessPolicies.minimumOrder,
+                businessPolicies.returns
               ].map(q => (
                 <div key={q} style={{ backgroundColor: "#F4F3F0", padding: "20px 24px", borderRadius: "4px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
                   <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 500 }}>{q}</p>
@@ -363,7 +364,6 @@ export const Contact: React.FC = () => {
         </div>
 
       </main>
-      <Footer />
     </div>
   );
 };

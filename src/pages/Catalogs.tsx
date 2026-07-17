@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { img as textileImages } from "@/pages/AboutUs";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const SearchIcon: React.FC = () => (
@@ -65,57 +66,57 @@ const CloseIcon: React.FC = () => (
 const fabrics = [
   {
     id: 1,
-    name: "Velvet Royal II",
-    badge: "Premium",
-    description: "Ultra-soft heavy velvet with double-sided finish.",
+    name: "Velvet 8020",
+    badge: "75 Colors",
+    description: "ANC stocked velvet for elegant upholstery and indoor interiors.",
     type: "Upholstery",
-    composition: "100% Cotton Velvet",
-    image: "https://picsum.photos/seed/velvet-royal/600/420.jpg",
+    composition: "ANC Brand",
+    image: textileImages.velvet,
   },
   {
     id: 2,
-    name: "Nordic Sheer",
+    name: "Sheer 9902",
     badge: null,
-    description: "Sustainable organic linen for ethereal drapery.",
+    description: "A light sheer collection for softly filtered interiors.",
     type: "Curtain",
-    composition: "85% Linen, 15% Silk",
-    image: "https://picsum.photos/seed/nordic-sheer/600/420.jpg",
+    composition: "ANC Brand",
+    image: textileImages.swatches,
   },
   {
     id: 3,
-    name: "Marina Shield",
+    name: "Blackout 9902",
     badge: null,
-    description: "High-performance weather-proof performance textile.",
-    type: "Outdoor",
-    composition: "Solution-dyed Acrylic",
-    image: "https://picsum.photos/seed/marina-shield/600/420.jpg",
+    description: "Stocked blackout fabric for curtains and light control.",
+    type: "Curtain",
+    composition: "ANC Brand",
+    image: textileImages.loom,
   },
   {
     id: 4,
-    name: "Antique Gold Jacquard",
+    name: "Linen 11106",
     badge: null,
-    description: "Traditional motifs reimagined for modern spaces.",
-    type: "Upholstery",
-    composition: "60% Silk, 40% Viscose",
-    image: "https://picsum.photos/seed/antique-gold/600/420.jpg",
+    description: "A versatile linen collection for warm, refined interiors.",
+    type: "Curtain / Upholstery",
+    composition: "ANC Brand",
+    image: textileImages.old,
   },
   {
     id: 5,
-    name: "Urban Geometric",
+    name: "Chenille Canna",
     badge: null,
-    description: "Architectural textures for hospitality projects.",
-    type: "Curtain/Wall",
-    composition: "100% Trevira CS",
-    image: "https://picsum.photos/seed/urban-geometric/600/420.jpg",
+    description: "Soft stocked chenille designed for comfortable upholstery.",
+    type: "Upholstery",
+    composition: "ANC Brand",
+    image: textileImages.lab,
   },
   {
     id: 6,
-    name: "Cloud Bouclé",
+    name: "Bouclé 2660",
     badge: null,
-    description: "Luxe comfort with a timeless organic feel.",
+    description: "Textured bouclé with a warm, luxurious character.",
     type: "Upholstery",
-    composition: "Wool-Poly Blend",
-    image: "https://picsum.photos/seed/cloud-boucle/600/420.jpg",
+    composition: "ANC Brand",
+    image: textileImages.shop,
   },
 ];
 
@@ -140,7 +141,7 @@ const navLinks = [
   { label: "DASHBOARD", to: "/dashboard" },
 ];
 
-const CatalogsNavbar: React.FC = () => {
+export const LegacyCatalogsNavbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
 
@@ -378,8 +379,9 @@ const SidebarFilters: React.FC = () => {
 
 // ── Fabric Card ─────────────────────────────────────────────────────────────
 const FabricCard: React.FC<typeof fabrics[number]> = ({ name, badge, description, type, composition, image }) => (
-  <div
-    style={{ backgroundColor: "#FFFFFF", border: "1px solid #EDECE8", borderRadius: "6px", overflow: "hidden" }}
+  <Link
+    to="/catalogs/velvet-8020/colors"
+    style={{ backgroundColor: "#FFFFFF", border: "1px solid #EDECE8", borderRadius: "6px", overflow: "hidden", textDecoration: "none", display: "block" }}
     className="group cursor-pointer transition-shadow duration-300 hover:shadow-md"
   >
     <div className="overflow-hidden" style={{ height: "200px" }}>
@@ -421,7 +423,7 @@ const FabricCard: React.FC<typeof fabrics[number]> = ({ name, badge, description
         </div>
       </div>
     </div>
-  </div>
+  </Link>
 );
 
 // ── Pagination ──────────────────────────────────────────────────────────────
@@ -473,7 +475,7 @@ const Pagination: React.FC = () => {
 };
 
 // ── Footer ──────────────────────────────────────────────────────────────────
-const CatalogsFooter: React.FC = () => (
+export const LegacyCatalogsFooter: React.FC = () => (
   <footer style={{ backgroundColor: "#F5F3EF", borderTop: "1px solid #E0DDD6" }} className="mt-20">
     <div className="max-w-7xl mx-auto px-6 pt-14 pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
@@ -600,7 +602,6 @@ const CatalogsPage: React.FC = () => {
 
   return (
     <div style={{ backgroundColor: "#FAFAF8", minHeight: "100vh", fontFamily: "Inter, system-ui, sans-serif" }}>
-      <CatalogsNavbar />
 
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="flex gap-10">
@@ -694,7 +695,6 @@ const CatalogsPage: React.FC = () => {
         </div>
       </div>
 
-      <CatalogsFooter />
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { img as textileImages } from "@/pages/AboutUs";
+import { company, whatsappUrl } from "@/constants/company";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const MenuIcon: React.FC = () => (
@@ -36,7 +38,7 @@ const navLinks = [
 ];
 
 // ── Navbar ─────────────────────────────────────────────────────────────────
-const Navbar: React.FC = () => {
+export const LegacyHomeNavbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
@@ -152,7 +154,7 @@ const Navbar: React.FC = () => {
 const HeroSection: React.FC = () => (
   <section style={{ position: "relative", minHeight: "90vh", overflow: "hidden" }}>
     <img
-      src="https://picsum.photos/seed/luxury-interior-anc/1920/1080.jpg"
+      src={textileImages.hero}
       alt="Luxury interior"
       style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
     />
@@ -178,7 +180,7 @@ const HeroSection: React.FC = () => (
           marginBottom: "20px",
         }}
       >
-        Since 1994 · Curated Luxury Fabrics
+        Founded 1998 · ANC Brand Fabrics
       </p>
       <h1
         style={{
@@ -191,8 +193,8 @@ const HeroSection: React.FC = () => (
           maxWidth: "600px",
         }}
       >
-        Premium Upholstery &amp;{" "}
-        <span style={{ color: "#C8A45A" }}>Curtain Fabrics</span>
+        Fabrics That Make Every Space Feel Like Home—{" "}
+        <span style={{ color: "#C8A45A" }}>Crafted for Interiors of Distinction.</span>
       </h1>
       <p
         style={{
@@ -203,8 +205,8 @@ const HeroSection: React.FC = () => (
           marginBottom: "36px",
         }}
       >
-        Discover an exquisite collection of textiles crafted for discerning interiors.
-        From sumptuous velvets to flowing silks, every fabric tells a story of artisanal excellence.
+        Luxurious curtain, upholstery, and indoor fabrics with reliable stock, competitive pricing,
+        responsive service, and delivery across the UAE from our Sharjah branch.
       </p>
       <div className="flex items-center gap-4 flex-wrap">
         <Link
@@ -282,13 +284,12 @@ const LegacySection: React.FC = () => (
             Legacy of Texture and Form
           </h2>
           <p style={{ color: "#6B6560", fontSize: "13px", lineHeight: 1.75, marginBottom: "14px" }}>
-            For over three decades, we have sourced the world's finest textiles — from Belgian linens
-            woven in centuries-old ateliers to Indian silks hand-dyed by master craftsmen. Each fabric
-            in our collection is selected for its character, durability, and ability to transform a space.
+            Founded by {company.founder} in Lebanon in {company.founded}, ANC grew through long-term
+            customer relationships, luxurious fabric quality, dependable stock, and competitive prices.
           </p>
           <p style={{ color: "#6B6560", fontSize: "13px", lineHeight: 1.75, marginBottom: "30px" }}>
-            Our curators travel to over 40 countries to discover materials that meet our exacting standards.
-            The result is a library of over 2,000 fabrics, each one a testament to the art of textile making.
+            Our Sharjah branch opened in {company.uaeOpened} and supplies stocked ANC-brand velvet, linen,
+            blackout, sheer, chenille, leather, bouclé, and fire-retardant fabrics to trade and retail customers.
           </p>
           <a
             href="#"
@@ -313,7 +314,7 @@ const LegacySection: React.FC = () => (
           <div className="space-y-3">
             <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "3/4" }}>
               <img
-                src="https://picsum.photos/seed/fabric-texture-anc1/500/670.jpg"
+                src={textileImages.velvet}
                 alt="Fabric texture"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 className="hover:scale-105 transition-transform duration-700"
@@ -321,7 +322,7 @@ const LegacySection: React.FC = () => (
             </div>
             <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "1/1" }}>
               <img
-                src="https://picsum.photos/seed/fabric-texture-anc2/500/500.jpg"
+                src={textileImages.swatches}
                 alt="Fabric detail"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 className="hover:scale-105 transition-transform duration-700"
@@ -331,7 +332,7 @@ const LegacySection: React.FC = () => (
           <div className="space-y-3" style={{ paddingTop: "32px" }}>
             <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "1/1" }}>
               <img
-                src="https://picsum.photos/seed/fabric-texture-anc3/500/500.jpg"
+                src={textileImages.loom}
                 alt="Woven fabric"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 className="hover:scale-105 transition-transform duration-700"
@@ -339,7 +340,7 @@ const LegacySection: React.FC = () => (
             </div>
             <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "3/4" }}>
               <img
-                src="https://picsum.photos/seed/fabric-texture-anc4/500/670.jpg"
+                src={textileImages.lab}
                 alt="Silk drape"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 className="hover:scale-105 transition-transform duration-700"
@@ -354,10 +355,10 @@ const LegacySection: React.FC = () => (
 
 // ── Stats Section ──────────────────────────────────────────────────────────
 const stats = [
-  { value: "40+", label: "Countries Sourced" },
-  { value: "12k+", label: "Projects Completed" },
-  { value: "85", label: "Expert Artisans" },
-  { value: "500+", label: "Fabric Collections" },
+  { value: "5", label: "Countries with Branches" },
+  { value: "1998", label: "Founded in Lebanon" },
+  { value: "2022", label: "Sharjah Branch Opened" },
+  { value: "1m", label: "Minimum Order" },
 ];
 
 const StatsSection: React.FC = () => (
@@ -406,19 +407,19 @@ const StatsSection: React.FC = () => (
 // ── Collection Section ─────────────────────────────────────────────────────
 const collectionItems = [
   {
-    title: "The French Nappa II",
+    title: "Velvet 8020",
     category: "Upholstery",
-    image: "https://picsum.photos/seed/collection-anc1/600/750.jpg",
+    image: textileImages.velvet,
   },
   {
-    title: "Nord Sheer Terrace",
+    title: "Sheer 9902",
     category: "Curtain/Drape",
-    image: "https://picsum.photos/seed/collection-anc2/600/750.jpg",
+    image: textileImages.swatches,
   },
   {
-    title: "Marina Shade Stone",
+    title: "Blackout 9902",
     category: "Outdoor",
-    image: "https://picsum.photos/seed/collection-anc3/600/750.jpg",
+    image: textileImages.loom,
   },
 ];
 
@@ -603,7 +604,7 @@ const VisualizerSection: React.FC = () => (
           }}
         >
           <img
-            src="https://picsum.photos/seed/visualizer-anc/800/500.jpg"
+            src={textileImages.shop}
             alt="Fabric Visualizer"
             style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.75 }}
           />
@@ -617,15 +618,15 @@ const VisualizerSection: React.FC = () => (
 const spaces = [
   {
     title: "Residential",
-    image: "https://picsum.photos/seed/space-residential/600/400.jpg",
+    image: textileImages.hero,
   },
   {
     title: "Commercial",
-    image: "https://picsum.photos/seed/space-commercial/600/400.jpg",
+    image: textileImages.shop,
   },
   {
     title: "Corporate",
-    image: "https://picsum.photos/seed/space-corporate/600/400.jpg",
+    image: textileImages.lab,
   },
 ];
 
@@ -763,7 +764,7 @@ const CTASection: React.FC = () => (
           marginBottom: "14px",
         }}
       >
-        Bespoke Consultation
+        Personal Fabric Guidance
       </p>
       <h2
         style={{
@@ -775,7 +776,7 @@ const CTASection: React.FC = () => (
           marginBottom: "16px",
         }}
       >
-        Request a Curator Consultation
+        Let Us Help You Choose
       </h2>
       <p
         style={{
@@ -786,10 +787,13 @@ const CTASection: React.FC = () => (
           margin: "0 auto 36px auto",
         }}
       >
-        Schedule a private consultation with our fabric specialists. We'll help you select the
-        perfect textiles for your project, with sample delivery to your door.
+        Speak with our team for honest guidance, prices on request, and help selecting the right
+        stocked curtain or upholstery fabric for your space.
       </p>
-      <button
+      <a
+        href={whatsappUrl("Hello ANC Najjar Furniture Fabrics, I would like help choosing fabric for my project.")}
+        target="_blank"
+        rel="noreferrer"
         style={{
           backgroundColor: "#1A1814",
           color: "#FFFFFF",
@@ -802,14 +806,14 @@ const CTASection: React.FC = () => (
         }}
         className="hover:opacity-80 transition-opacity"
       >
-        Book Now
-      </button>
+        WhatsApp Us
+      </a>
     </div>
   </section>
 );
 
 // ── Footer ─────────────────────────────────────────────────────────────────
-const Footer: React.FC = () => (
+export const LegacyHomeFooter: React.FC = () => (
   <footer style={{ backgroundColor: "#F5F3EF", borderTop: "1px solid #E0DDD6" }}>
     <div className="max-w-7xl mx-auto px-6 pt-14 pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
@@ -904,7 +908,6 @@ const Footer: React.FC = () => (
 // ── Main Page ──────────────────────────────────────────────────────────────
 const Home: React.FC = () => (
   <div style={{ backgroundColor: "#FAFAF8", fontFamily: "Inter, system-ui, sans-serif" }}>
-    <Navbar />
     <HeroSection />
     <LegacySection />
     <StatsSection />
@@ -913,7 +916,6 @@ const Home: React.FC = () => (
     <SpacesSection />
     <TestimonialSection />
     <CTASection />
-    <Footer />
   </div>
 );
 

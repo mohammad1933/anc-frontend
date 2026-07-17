@@ -11,7 +11,7 @@ const links = [
   ["DASHBOARD", "/dashboard"],
 ];
 
-function Header() {
+export function LegacyRequestSampleHeader() {
   const [open, setOpen] = useState(false);
   return (
     <header className="rs-header">
@@ -38,7 +38,7 @@ function Header() {
   );
 }
 
-function Footer() {
+export function LegacyRequestSampleFooter() {
   return (
     <footer className="rs-footer">
       <div className="rs-footer-grid">
@@ -78,50 +78,93 @@ function Footer() {
 }
 
 export default function RequestSample() {
-  const submit = (event: FormEvent) => event.preventDefault();
+  const [step, setStep] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+  const [selectedSamples, setSelectedSamples] = useState(["Velvet 8020"]);
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    if (step < 2) setStep((current) => current + 1);
+    else setSubmitted(true);
+  };
+
+  const toggleSample = (sample: string) => {
+    setSelectedSamples((current) =>
+      current.includes(sample)
+        ? current.filter((item) => item !== sample)
+        : current.length < 3 ? [...current, sample] : current,
+    );
+  };
+
   return (
     <div className="rs-page">
-      <Header />
       <main className="rs-main">
         <section className="rs-intro">
           <h1>Request a Sample</h1>
-          <p>Experience the tactile quality of our premium textiles before making your final selection.<br />Our curated samples help you ensure the perfect match for your space.</p>
+          <p>Choose up to three free A4 fabric samples before making your final selection.<br />Sample delivery is free in Sharjah and Ajman; courier charges apply elsewhere.</p>
           <div className="rs-steps">
             {[["1", "INFORMATION"], ["2", "SELECTION"], ["3", "DELIVERY"]].map(([number, label], index) => (
-              <div className={index === 0 ? "active" : ""} key={number}>
+              <button
+                type="button"
+                className={`${index === step ? "active" : ""}${index < step ? " completed" : ""}`}
+                onClick={() => { if (index <= step) setStep(index); }}
+                key={number}
+              >
                 <span>{number}</span>
                 <small>{label}</small>
-              </div>
+              </button>
             ))}
           </div>
         </section>
 
         <form className="rs-card" onSubmit={submit}>
-          <h2>Customer Details</h2>
-          <div className="rs-fields">
-            <label>
-              <b>COMPANY NAME</b>
-              <input defaultValue="Global Interiors Ltd." />
-            </label>
-            <label>
-              <b>INDUSTRY</b>
-              <input defaultValue="Interior Design" />
-            </label>
-            <label>
-              <b>FULL NAME</b>
-              <input defaultValue="Jonathan Doe" />
-            </label>
-            <label>
-              <b>COUNTRY</b>
-              <input defaultValue="United Arab Emirates" />
-            </label>
-          </div>
+          {submitted ? (
+            <div className="rs-success">
+              <span>✓</span>
+              <h2>Request Submitted</h2>
+              <p>Your sample request has been received. Our team will contact you with delivery details.</p>
+            </div>
+          ) : step === 0 ? (
+            <>
+              <h2>Customer Details</h2>
+              <div className="rs-fields">
+                <label><b>COMPANY NAME</b><input placeholder="Company name (optional)" /></label>
+                <label><b>INDUSTRY</b><input placeholder="Your industry" /></label>
+                <label><b>FULL NAME</b><input required placeholder="Full name" /></label>
+                <label><b>COUNTRY</b><input required defaultValue="United Arab Emirates" /></label>
+              </div>
+            </>
+          ) : step === 1 ? (
+            <>
+              <h2>Select Samples</h2>
+              <p className="rs-card-intro">Choose up to three free A4 samples.</p>
+              <div className="rs-sample-options">
+                {["Velvet 8020", "Blackout 9902", "Sheer 9902", "Linen 11106", "Bouclé 2660", "Chenille Canna"].map((sample) => (
+                  <label className={selectedSamples.includes(sample) ? "selected" : ""} key={sample}>
+                    <input type="checkbox" checked={selectedSamples.includes(sample)} onChange={() => toggleSample(sample)} />
+                    <span>{sample}</span><small>{selectedSamples.includes(sample) ? "SELECTED" : "SELECT"}</small>
+                  </label>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <h2>Delivery Details</h2>
+              <div className="rs-fields">
+                <label><b>DELIVERY ADDRESS</b><input required placeholder="Street and building" /></label>
+                <label><b>CITY</b><input required placeholder="Sharjah" /></label>
+                <label><b>EMAIL ADDRESS</b><input required type="email" placeholder="name@company.com" /></label>
+                <label><b>PHONE NUMBER</b><input required type="tel" placeholder="+971 00 000 0000" /></label>
+              </div>
+            </>
+          )}
           <div className="rs-card-bottom">
-            <button type="submit">NEXT<br />STEP <span>→</span></button>
+            {!submitted && step > 0 && <button className="rs-back" type="button" onClick={() => setStep((current) => current - 1)}>←　BACK</button>}
+            {!submitted && <button type="submit">{step === 2 ? <>SUBMIT<br />REQUEST</> : <>NEXT<br />STEP <span>→</span></>}</button>}
+            {submitted && <button type="button" onClick={() => { setStep(0); setSubmitted(false); }}>NEW<br />REQUEST <span>→</span></button>}
           </div>
         </form>
       </main>
-      <Footer />
     </div>
   );
 }

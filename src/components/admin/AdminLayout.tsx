@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import "@/pages/Dashboard.css";
+import { company } from "@/constants/company";
 
 const menuGroups = [
   {
@@ -35,6 +36,10 @@ const searchPlaceholders: Record<string, string> = {
   "/dashboard/catalogs": "Search catalogs by name or SKU...",
   "/dashboard/colors": "Search catalogs or colors...",
   "/dashboard/requests": "Global search for collections or items...",
+  "/dashboard/categories": "Search categories, fabrics, or attributes...",
+  "/dashboard/customers": "Search customer directory...",
+  "/dashboard/services": "Search services or catalogs...",
+  "/dashboard/settings": "Search settings, users, or logs...",
 };
 
 export default function AdminLayout() {
@@ -45,7 +50,8 @@ export default function AdminLayout() {
     <div className="db-page">
       <aside className="db-sidebar">
         <Link className="db-logo" to="/">
-          <span>╱<br />╱</span><b>ANC NAJJAR</b>
+          <img src="/images/anc-logo.jpeg" alt="ANC Furnishing Fabrics" />
+          <b>{company.name}</b>
         </Link>
         <div className="db-menu">
           {menuGroups.map(group => (
@@ -61,7 +67,7 @@ export default function AdminLayout() {
         </div>
         <div className="db-profile">
           <div className="db-avatar">IN</div>
-          <div><b>Ibrahim Najjar</b><span>Admin Account</span></div>
+          <div><b>Administrator</b><span>Admin Account</span></div>
           <i>⇥</i>
         </div>
       </aside>
@@ -74,7 +80,7 @@ export default function AdminLayout() {
           </label>
           <div className="db-account">
             <i>♧<b /></i><span />
-            <div><strong>Ibrahim Najjar</strong><small>SUPER ADMIN</small></div>
+            <div><strong>Administrator</strong><small>ADMIN ACCOUNT</small></div>
           </div>
         </header>
         <Outlet />
