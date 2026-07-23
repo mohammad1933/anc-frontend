@@ -1,4 +1,7 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL ?? "/api/v1").replace(/\/$/, "");
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL ??
+  "https://astonishing-celebration-production-9392.up.railway.app/api/v1"
+).replace(/\/$/, "");
 
 export interface PaginatedResponse<T> {
   data: T[];
