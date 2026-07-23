@@ -29,6 +29,10 @@ interface ConfiguratorState {
   rejections: UploadRejection[];
   isUploading: boolean;
   textureResolution: { width: number; height: number } | null;
+  roomPhotoUrl: string | null;
+  roomTransformMode: "translate" | "rotate" | "scale";
+  roomTransformReset: number;
+  roomControlsVisible: boolean;
 
   setSearchQuery: (query: string) => void;
   uploadFiles: (files: FileList | File[]) => Promise<void>;
@@ -40,6 +44,10 @@ interface ConfiguratorState {
   setStatus: (status: LoadingStatus) => void;
   dismissRejections: () => void;
   setTextureResolution: (dims: { width: number; height: number } | null) => void;
+  setRoomPhoto: (file: File | null) => void;
+  setRoomTransformMode: (mode: "translate" | "rotate" | "scale") => void;
+  resetRoomTransform: () => void;
+  setRoomControlsVisible: (visible: boolean) => void;
 }
 
 const ConfiguratorCtx = createContext<ConfiguratorState | null>(null);
@@ -53,6 +61,11 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
   const [rejections, setRejections] = useState<UploadRejection[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [textureResolution, setTextureResolution] = useState<{ width: number; height: number } | null>(null);
+  const [roomPhotoUrl, setRoomPhotoUrl] = useState<string | null>(null);
+  const [roomTransformMode, setRoomTransformMode] = useState<"translate" | "rotate" | "scale">("translate");
+  const [roomTransformReset, setRoomTransformReset] = useState(0);
+  const [roomControlsVisible, setRoomControlsVisible] = useState(true);
+  const roomPhotoRef = useRef<string | null>(null);
 
   // Guards against setting state after unmount during async thumbnail work.
   const mountedRef = useRef(true);
@@ -141,6 +154,15 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
 
   const dismissRejections = useCallback(() => setRejections([]), []);
 
+  const setRoomPhoto = useCallback((file: File | null) => {
+    if (roomPhotoRef.current) URL.revokeObjectURL(roomPhotoRef.current);
+    const nextUrl = file ? URL.createObjectURL(file) : null;
+    roomPhotoRef.current = nextUrl;
+    setRoomPhotoUrl(nextUrl);
+    if (file) setRoomControlsVisible(true);
+  }, []);
+  const resetRoomTransform = useCallback(() => setRoomTransformReset((value) => value + 1), []);
+
   const activeFabric = useMemo(
     () => fabrics.find((f) => f.id === activeFabricId) ?? null,
     [fabrics, activeFabricId],
@@ -156,6 +178,10 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     rejections,
     isUploading,
     textureResolution,
+    roomPhotoUrl,
+    roomTransformMode,
+    roomTransformReset,
+    roomControlsVisible,
     setSearchQuery,
     uploadFiles,
     importFabric,
@@ -166,6 +192,10 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     setStatus,
     dismissRejections,
     setTextureResolution,
+    setRoomPhoto,
+    setRoomTransformMode,
+    resetRoomTransform,
+    setRoomControlsVisible,
   };
 
   return <ConfiguratorCtx.Provider value={value}>{children}</ConfiguratorCtx.Provider>;

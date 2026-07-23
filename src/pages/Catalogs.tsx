@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { img as textileImages } from "@/pages/AboutUs";
+import { api } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
+import type { Catalog } from "@/types/api";
+import { paginationItems } from "@/utils/pagination";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const SearchIcon: React.FC = () => (
@@ -63,71 +67,11 @@ const CloseIcon: React.FC = () => (
 );
 
 // ── Data ───────────────────────────────────────────────────────────────────
-const fabrics = [
-  {
-    id: 1,
-    name: "Velvet 8020",
-    badge: "75 Colors",
-    description: "ANC stocked velvet for elegant upholstery and indoor interiors.",
-    type: "Upholstery",
-    composition: "ANC Brand",
-    image: textileImages.velvet,
-  },
-  {
-    id: 2,
-    name: "Sheer 9902",
-    badge: null,
-    description: "A light sheer collection for softly filtered interiors.",
-    type: "Curtain",
-    composition: "ANC Brand",
-    image: textileImages.swatches,
-  },
-  {
-    id: 3,
-    name: "Blackout 9902",
-    badge: null,
-    description: "Stocked blackout fabric for curtains and light control.",
-    type: "Curtain",
-    composition: "ANC Brand",
-    image: textileImages.loom,
-  },
-  {
-    id: 4,
-    name: "Linen 11106",
-    badge: null,
-    description: "A versatile linen collection for warm, refined interiors.",
-    type: "Curtain / Upholstery",
-    composition: "ANC Brand",
-    image: textileImages.old,
-  },
-  {
-    id: 5,
-    name: "Chenille Canna",
-    badge: null,
-    description: "Soft stocked chenille designed for comfortable upholstery.",
-    type: "Upholstery",
-    composition: "ANC Brand",
-    image: textileImages.lab,
-  },
-  {
-    id: 6,
-    name: "Bouclé 2660",
-    badge: null,
-    description: "Textured bouclé with a warm, luxurious character.",
-    type: "Upholstery",
-    composition: "ANC Brand",
-    image: textileImages.shop,
-  },
-];
-
-const colorFamily = [
-  { color: "#C8A45A", label: "Gold" },
-  { color: "#D4CFC9", label: "Light Gray" },
-  { color: "#8C8C8C", label: "Gray" },
-  { color: "#5B3F8C", label: "Purple" },
-  { color: "#E8E4DC", label: "Cream" },
-  { color: "#1A1A2E", label: "Navy" },
-];
+const colorFamilyColors: Record<string, string> = {
+  Gold: "#C8A45A", "Light Gray": "#D4CFC9", Gray: "#8C8C8C", Purple: "#5B3F8C",
+  Cream: "#E8E4DC", Navy: "#1A1A2E", Red: "#A43B35", Green: "#4F7047",
+  Blue: "#426C9D", Brown: "#76513C", Black: "#191919", White: "#F7F7F5",
+};
 
 // ── Navbar ─────────────────────────────────────────────────────────────────
 const navLinks = [
@@ -256,22 +200,30 @@ export const LegacyCatalogsNavbar: React.FC = () => {
 };
 
 // ── Sidebar Filters ─────────────────────────────────────────────────────────
-const SidebarFilters: React.FC = () => {
-  const [categories, setCategories] = useState({ Upholstery: false, Curtain: true, Outdoor: false });
-  const [materials, setMaterials] = useState({ Wool: false, Linen: false, Cotton: false, Silk: false, Synthetic: false });
-  const [selectedColor, setSelectedColor] = useState<string | null>("#C8A45A");
-  const [applications, setApplications] = useState({
-    Residential: false,
-    "Hotel & Hospitality": false,
-    "Commercial Office": false,
-  });
+interface CatalogFilters {
+  categories: string[];
+  materials: string[];
+  compositions: string[];
+  colorFamilies: string[];
+  applications: string[];
+  featuredOnly: boolean;
+  newOnly: boolean;
+  withColorsOnly: boolean;
+  withSpecificationsOnly: boolean;
+  withPdfOnly: boolean;
+}
 
-  const toggleCategory = (key: keyof typeof categories) =>
-    setCategories((p) => ({ ...p, [key]: !p[key] }));
-  const toggleMaterial = (key: keyof typeof materials) =>
-    setMaterials((p) => ({ ...p, [key]: !p[key] }));
-  const toggleApplication = (key: keyof typeof applications) =>
-    setApplications((p) => ({ ...p, [key]: !p[key] }));
+interface SidebarFiltersProps {
+  filters: CatalogFilters;
+  options: { categories: string[]; materials: string[]; compositions: string[]; colorFamilies: string[]; applications: string[] };
+  onChange: (filters: CatalogFilters) => void;
+}
+
+const SidebarFilters: React.FC<SidebarFiltersProps> = ({ filters, options, onChange }) => {
+  const toggle = (field: "categories" | "materials" | "compositions" | "colorFamilies" | "applications", value: string) => {
+    const selected = filters[field];
+    onChange({ ...filters, [field]: selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value] });
+  };
 
   return (
     <aside className="w-full md:w-56 shrink-0">
@@ -280,7 +232,7 @@ const SidebarFilters: React.FC = () => {
         <span style={{ color: "#1A1814", fontSize: "13px", fontWeight: 600, letterSpacing: "0.02em" }}>
           Filters
         </span>
-        <button style={{ color: "#C8A45A", fontSize: "11px", letterSpacing: "0.05em" }} className="font-medium">
+        <button onClick={() => onChange({ categories: [], materials: [], compositions: [], colorFamilies: [], applications: [], featuredOnly: false, newOnly: false, withColorsOnly: false, withSpecificationsOnly: false, withPdfOnly: false })} style={{ color: "#C8A45A", fontSize: "11px", letterSpacing: "0.05em" }} className="font-medium">
           Reset All
         </button>
       </div>
@@ -290,12 +242,12 @@ const SidebarFilters: React.FC = () => {
         <p style={{ color: "#9B9590", fontSize: "9px", letterSpacing: "0.15em", fontWeight: 700 }} className="uppercase mb-3">
           Category
         </p>
-        {(Object.keys(categories) as (keyof typeof categories)[]).map((cat) => (
+        {options.categories.map((cat) => (
           <label key={cat} className="flex items-center gap-2.5 mb-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={categories[cat]}
-              onChange={() => toggleCategory(cat)}
+              checked={filters.categories.includes(cat)}
+              onChange={() => toggle("categories", cat)}
               style={{ accentColor: "#C8A45A", width: "13px", height: "13px" }}
             />
             <span style={{ color: "#3D3830", fontSize: "12px" }}>{cat}</span>
@@ -309,17 +261,17 @@ const SidebarFilters: React.FC = () => {
           Material
         </p>
         <div className="flex flex-wrap gap-2">
-          {(Object.keys(materials) as (keyof typeof materials)[]).map((mat) => (
+          {options.materials.map((mat) => (
             <button
               key={mat}
-              onClick={() => toggleMaterial(mat)}
+              onClick={() => toggle("materials", mat)}
               style={{
                 fontSize: "11px",
                 padding: "4px 12px",
                 borderRadius: "20px",
-                border: materials[mat] ? "1px solid #C8A45A" : "1px solid #D5D0C8",
-                backgroundColor: materials[mat] ? "#FBF6EE" : "transparent",
-                color: materials[mat] ? "#C8A45A" : "#6B6560",
+                border: filters.materials.includes(mat) ? "1px solid #C8A45A" : "1px solid #D5D0C8",
+                backgroundColor: filters.materials.includes(mat) ? "#FBF6EE" : "transparent",
+                color: filters.materials.includes(mat) ? "#C8A45A" : "#6B6560",
                 letterSpacing: "0.03em",
               }}
               className="transition-all duration-150"
@@ -330,30 +282,73 @@ const SidebarFilters: React.FC = () => {
         </div>
       </div>
 
+      {/* Composition */}
+      <div className="mb-6">
+        <p style={{ color: "#9B9590", fontSize: "9px", letterSpacing: "0.15em", fontWeight: 700 }} className="uppercase mb-3">
+          Composition
+        </p>
+        {options.compositions.map((composition) => (
+          <label key={composition} className="flex items-start gap-2.5 mb-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filters.compositions.includes(composition)}
+              onChange={() => toggle("compositions", composition)}
+              style={{ accentColor: "#C8A45A", width: "13px", height: "13px", marginTop: "2px" }}
+            />
+            <span style={{ color: "#3D3830", fontSize: "12px", lineHeight: 1.4 }}>{composition}</span>
+          </label>
+        ))}
+      </div>
+
       {/* Color Family */}
       <div className="mb-6">
         <p style={{ color: "#9B9590", fontSize: "9px", letterSpacing: "0.15em", fontWeight: 700 }} className="uppercase mb-3">
           Color Family
         </p>
-        <div className="flex gap-2 flex-wrap">
-          {colorFamily.map((c) => (
+        <div className="flex flex-wrap gap-2">
+          {options.colorFamilies.map((family) => (
             <button
-              key={c.label}
-              title={c.label}
-              onClick={() => setSelectedColor(c.color === selectedColor ? null : c.color)}
+              key={family}
+              title={family}
+              aria-pressed={filters.colorFamilies.includes(family)}
+              onClick={() => toggle("colorFamilies", family)}
               style={{
-                width: "22px",
-                height: "22px",
-                borderRadius: "50%",
-                backgroundColor: c.color,
-                border: selectedColor === c.color ? "2px solid #C8A45A" : "2px solid transparent",
-                outline: selectedColor === c.color ? "2px solid #C8A45A" : "2px solid transparent",
-                outlineOffset: "2px",
+                display: "flex", alignItems: "center", gap: "5px", padding: "4px 8px", borderRadius: "16px",
+                border: filters.colorFamilies.includes(family) ? "1px solid #C8A45A" : "1px solid #D5D0C8",
+                backgroundColor: filters.colorFamilies.includes(family) ? "#FBF6EE" : "transparent",
+                color: "#5F5952", fontSize: "10px",
               }}
               className="transition-all duration-150"
-            />
+            >
+              <i style={{ width: "12px", height: "12px", borderRadius: "50%", background: colorFamilyColors[family] ?? "#B7ADA0", border: "1px solid #00000012" }} />
+              {family}
+            </button>
           ))}
         </div>
+      </div>
+
+      {/* Attributes */}
+      <div className="mb-6">
+        <p style={{ color: "#9B9590", fontSize: "9px", letterSpacing: "0.15em", fontWeight: 700 }} className="uppercase mb-3">
+          Collection Attributes
+        </p>
+        {([
+          ["featuredOnly", "Featured collections"],
+          ["newOnly", "New arrivals"],
+          ["withColorsOnly", "Has available colors"],
+          ["withSpecificationsOnly", "Has specifications"],
+          ["withPdfOnly", "Has catalog PDF"],
+        ] as const).map(([field, label]) => (
+          <label key={field} className="flex items-center gap-2.5 mb-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filters[field]}
+              onChange={(event) => onChange({ ...filters, [field]: event.target.checked })}
+              style={{ accentColor: "#C8A45A", width: "13px", height: "13px" }}
+            />
+            <span style={{ color: "#3D3830", fontSize: "12px" }}>{label}</span>
+          </label>
+        ))}
       </div>
 
       {/* Applications */}
@@ -361,12 +356,12 @@ const SidebarFilters: React.FC = () => {
         <p style={{ color: "#9B9590", fontSize: "9px", letterSpacing: "0.15em", fontWeight: 700 }} className="uppercase mb-3">
           Applications
         </p>
-        {(Object.keys(applications) as (keyof typeof applications)[]).map((app) => (
+        {options.applications.map((app) => (
           <label key={app} className="flex items-center gap-2.5 mb-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={applications[app]}
-              onChange={() => toggleApplication(app)}
+              checked={filters.applications.includes(app)}
+              onChange={() => toggle("applications", app)}
               style={{ accentColor: "#C8A45A", width: "13px", height: "13px" }}
             />
             <span style={{ color: "#3D3830", fontSize: "12px" }}>{app}</span>
@@ -378,9 +373,15 @@ const SidebarFilters: React.FC = () => {
 };
 
 // ── Fabric Card ─────────────────────────────────────────────────────────────
-const FabricCard: React.FC<typeof fabrics[number]> = ({ name, badge, description, type, composition, image }) => (
+interface FabricCardProps {
+  id: number; name: string; sku: string; badge: string | null; description: string; category: string; type: string; material: string;
+  composition: string; applications: string[]; colorFamilies: string[]; colorCount: number; isFeatured: boolean;
+  isNew: boolean; hasSpecifications: boolean; hasPdf: boolean; viewCount: number; image: string;
+}
+
+const FabricCard: React.FC<FabricCardProps> = ({ id, name, badge, description, type, composition, image }) => (
   <Link
-    to="/catalogs/velvet-8020/colors"
+    to={`/catalogs/${id}/colors`}
     style={{ backgroundColor: "#FFFFFF", border: "1px solid #EDECE8", borderRadius: "6px", overflow: "hidden", textDecoration: "none", display: "block" }}
     className="group cursor-pointer transition-shadow duration-300 hover:shadow-md"
   >
@@ -427,12 +428,13 @@ const FabricCard: React.FC<typeof fabrics[number]> = ({ name, badge, description
 );
 
 // ── Pagination ──────────────────────────────────────────────────────────────
-const Pagination: React.FC = () => {
-  const [page, setPage] = useState(1);
+const Pagination: React.FC<{ page: number; pageCount: number; onChange: (page: number) => void }> = ({ page, pageCount, onChange }) => {
+  const pageNumbers = paginationItems(page, pageCount);
   return (
     <div className="flex items-center justify-center gap-1 mt-12">
       <button
-        onClick={() => setPage((p) => Math.max(1, p - 1))}
+        disabled={page === 1}
+        onClick={() => onChange(Math.max(1, page - 1))}
         style={{
           width: "32px", height: "32px", borderRadius: "4px",
           border: "1px solid #D5D0C8", color: "#6B6560",
@@ -442,25 +444,25 @@ const Pagination: React.FC = () => {
       >
         <ChevronLeftIcon />
       </button>
-      {[1, 2, 3].map((p) => (
+      {pageNumbers.map((pageNumber) => typeof pageNumber === "number" ? (
         <button
-          key={p}
-          onClick={() => setPage(p)}
+          key={pageNumber}
+          onClick={() => onChange(pageNumber)}
           style={{
             width: "32px", height: "32px", borderRadius: "4px",
-            border: page === p ? "1px solid #C8A45A" : "1px solid #D5D0C8",
-            backgroundColor: page === p ? "#C8A45A" : "transparent",
-            color: page === p ? "#FFFFFF" : "#6B6560",
-            fontSize: "12px", fontWeight: page === p ? 600 : 400,
+            border: page === pageNumber ? "1px solid #C8A45A" : "1px solid #D5D0C8",
+            backgroundColor: page === pageNumber ? "#C8A45A" : "transparent",
+            color: page === pageNumber ? "#FFFFFF" : "#6B6560",
+            fontSize: "12px", fontWeight: page === pageNumber ? 600 : 400,
           }}
           className="transition-all duration-150"
         >
-          {p}
+          {pageNumber}
         </button>
-      ))}
-      <span style={{ color: "#B0ABA5", fontSize: "13px", padding: "0 4px" }}>...</span>
+      ) : <span aria-hidden="true" key={pageNumber}>…</span>)}
       <button
-        onClick={() => setPage((p) => p + 1)}
+        disabled={page === pageCount}
+        onClick={() => onChange(Math.min(pageCount, page + 1))}
         style={{
           width: "32px", height: "32px", borderRadius: "4px",
           border: "1px solid #D5D0C8", color: "#6B6560",
@@ -594,11 +596,75 @@ export const LegacyCatalogsFooter: React.FC = () => (
 const CatalogsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState("Newest First");
   const [search, setSearch] = useState("");
-
-  const filtered = fabrics.filter((f) =>
-    f.name.toLowerCase().includes(search.toLowerCase()) ||
-    f.type.toLowerCase().includes(search.toLowerCase())
+  const [filters, setFilters] = useState<CatalogFilters>({
+    categories: [], materials: [], compositions: [], colorFamilies: [], applications: [],
+    featuredOnly: false, newOnly: false, withColorsOnly: false, withSpecificationsOnly: false, withPdfOnly: false,
+  });
+  const [page, setPage] = useState(1);
+  const pageSize = 9;
+  const { data, loading, error } = useApi(
+    () => api.getAll<Catalog>("catalogs", { status: "published", per_page: 100 }),
+    [],
   );
+
+  const catalogCards: FabricCardProps[] = (data?.data ?? []).map((catalog) => ({
+    id: catalog.id,
+    name: catalog.name,
+    sku: catalog.sku ?? "",
+    badge: catalog.colors_count ? `${catalog.colors_count} Colors` : null,
+    description: catalog.description ?? "",
+    category: catalog.category?.name ?? "",
+    type: catalog.category?.name ?? catalog.material ?? "Fabric",
+    material: catalog.material ?? "",
+    composition: catalog.composition ?? "",
+    applications: catalog.applications ?? [],
+    colorFamilies: [...new Set((catalog.colors ?? []).map((color) => color.color_family).filter((family): family is string => Boolean(family)))],
+    colorCount: catalog.colors_count ?? 0,
+    isFeatured: catalog.is_featured,
+    isNew: catalog.is_new,
+    hasSpecifications: Boolean(catalog.specifications && Object.keys(catalog.specifications).length),
+    hasPdf: Boolean(catalog.pdf_path),
+    viewCount: catalog.view_count ?? 0,
+    image: catalog.thumbnail_path ?? textileImages.velvet,
+  }));
+
+  const filterOptions = {
+    categories: [...new Set(catalogCards.map((catalog) => catalog.category).filter(Boolean))].sort(),
+    materials: [...new Set(catalogCards.map((catalog) => catalog.material).filter(Boolean))].sort(),
+    compositions: [...new Set(catalogCards.map((catalog) => catalog.composition).filter(Boolean))].sort(),
+    colorFamilies: [...new Set(catalogCards.flatMap((catalog) => catalog.colorFamilies))].sort(),
+    applications: [...new Set(catalogCards.flatMap((catalog) => catalog.applications))].sort(),
+  };
+  const query = search.trim().toLowerCase();
+  const filtered = catalogCards.filter((catalog) => {
+    const matchesSearch = !query || [catalog.name, catalog.sku, catalog.type, catalog.material, catalog.composition, catalog.description, ...catalog.applications, ...catalog.colorFamilies]
+      .some((value) => value.toLowerCase().includes(query));
+    const matchesCategory = filters.categories.length === 0 || filters.categories.includes(catalog.category);
+    const matchesMaterial = filters.materials.length === 0 || filters.materials.includes(catalog.material);
+    const matchesComposition = filters.compositions.length === 0 || filters.compositions.includes(catalog.composition);
+    const matchesApplication = filters.applications.length === 0 || filters.applications.some((application) => catalog.applications.includes(application));
+    const matchesColor = filters.colorFamilies.length === 0 || filters.colorFamilies.some((family) => catalog.colorFamilies.includes(family));
+    const matchesFeatured = !filters.featuredOnly || catalog.isFeatured;
+    const matchesNew = !filters.newOnly || catalog.isNew;
+    const matchesColorsAvailable = !filters.withColorsOnly || catalog.colorCount > 0;
+    const matchesSpecifications = !filters.withSpecificationsOnly || catalog.hasSpecifications;
+    const matchesPdf = !filters.withPdfOnly || catalog.hasPdf;
+
+    return matchesSearch && matchesCategory && matchesMaterial && matchesComposition && matchesApplication &&
+      matchesColor && matchesFeatured && matchesNew && matchesColorsAvailable && matchesSpecifications && matchesPdf;
+  }).sort((left, right) => {
+    if (sortBy === "Name A-Z") return left.name.localeCompare(right.name);
+    if (sortBy === "Name Z-A") return right.name.localeCompare(left.name);
+    if (sortBy === "Most Colors") return right.colorCount - left.colorCount;
+    if (sortBy === "Most Popular") return right.viewCount - left.viewCount;
+    return sortBy === "Oldest First" ? left.id - right.id : right.id - left.id;
+  });
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const visibleCatalogs = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, sortBy, filters]);
 
   return (
     <div style={{ backgroundColor: "#FAFAF8", minHeight: "100vh", fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -606,7 +672,7 @@ const CatalogsPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="flex gap-10">
           {/* Sidebar */}
-          <SidebarFilters />
+          <SidebarFilters filters={filters} options={filterOptions} onChange={setFilters} />
 
           {/* Main */}
           <main className="flex-1 min-w-0">
@@ -673,6 +739,8 @@ const CatalogsPage: React.FC = () => {
                       <option>Oldest First</option>
                       <option>Name A-Z</option>
                       <option>Name Z-A</option>
+                      <option>Most Colors</option>
+                      <option>Most Popular</option>
                     </select>
                     <span style={{ position: "absolute", right: "0", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#6B6560" }}>
                       <ChevronDownIcon />
@@ -683,14 +751,17 @@ const CatalogsPage: React.FC = () => {
             </div>
 
             {/* Grid */}
+            {loading && <p role="status">Loading catalogs…</p>}
+            {error && <p role="alert">{error}</p>}
+            {!loading && !error && filtered.length === 0 && <p>No published catalogs match your search and filters.</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((fabric) => (
+              {visibleCatalogs.map((fabric) => (
                 <FabricCard key={fabric.id} {...fabric} />
               ))}
             </div>
 
             {/* Pagination */}
-            <Pagination />
+            {filtered.length > 0 && <Pagination page={page} pageCount={pageCount} onChange={setPage} />}
           </main>
         </div>
       </div>

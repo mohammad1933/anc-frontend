@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useGLTF } from "@react-three/drei";
+import { TransformControls, useGLTF } from "@react-three/drei";
 import { MODEL_PATH } from "@/constants/config";
 import { useConfigurator } from "@/hooks/ConfiguratorContext";
 import { loadFabricTexture } from "@/utils/textureCache";
@@ -16,10 +16,11 @@ interface GLTFResult {
  */
 export function SofaModel() {
   const { scene } = useGLTF(MODEL_PATH) as unknown as GLTFResult;
-  const { activeFabric, transform, setStatus, setTextureResolution } = useConfigurator();
+  const { activeFabric, transform, setStatus, setTextureResolution, roomPhotoUrl, roomTransformMode, roomTransformReset, roomControlsVisible } = useConfigurator();
 
   const meshesRef = useRef<THREE.Mesh[]>([]);
   const currentTextureRef = useRef<THREE.Texture | null>(null);
+  const placementRef = useRef<THREE.Group>(null);
 
   // Clone the scene once so hot-reloads / multiple mounts don't share state,
   // and collect every mesh that should receive the fabric material.
@@ -100,7 +101,18 @@ export function SofaModel() {
     texture.needsUpdate = true;
   }, [transform]);
 
-  return <primitive object={clonedScene} position={[0, 0, 0]} />;
+  useEffect(() => {
+    if (!placementRef.current) return;
+    placementRef.current.position.set(0, 0, 0);
+    placementRef.current.rotation.set(0, 0, 0);
+    placementRef.current.scale.setScalar(1);
+  }, [roomTransformReset]);
+
+  const sofa = <group ref={placementRef}><primitive object={clonedScene} position={[0, 0, 0]} /></group>;
+
+  return roomPhotoUrl
+    ? <TransformControls enabled={roomControlsVisible} showX={roomControlsVisible} showY={roomControlsVisible} showZ={roomControlsVisible} mode={roomTransformMode} space={roomTransformMode === "translate" ? "world" : "local"} size={0.75}>{sofa}</TransformControls>
+    : sofa;
 }
 
 useGLTF.preload(MODEL_PATH);

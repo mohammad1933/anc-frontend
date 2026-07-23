@@ -6,13 +6,13 @@ import { ResetIcon, FullscreenIcon, CameraIcon } from "@/components/ui/icons";
 import { downloadCanvasScreenshot } from "@/utils/screenshot";
 
 export function ActionButtons() {
-  const { resetTransform, activeFabric } = useConfigurator();
+  const { resetTransform, activeFabric, roomPhotoUrl } = useConfigurator();
   const { containerRef, canvasRef } = useViewerRefs();
   const { toggleFullscreen } = useFullscreen(containerRef);
 
   const handleScreenshot = () => {
     if (canvasRef.current) {
-      downloadCanvasScreenshot(canvasRef.current, activeFabric?.name ?? "atelier-sofa");
+      void downloadCanvasScreenshot(canvasRef.current, activeFabric?.name ?? "atelier-sofa", roomPhotoUrl);
     }
   };
 

@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { img as textileImages } from "@/pages/AboutUs";
 import { company, whatsappUrl } from "@/constants/company";
+import { api } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
+import type { Catalog } from "@/types/api";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const MenuIcon: React.FC = () => (
@@ -291,8 +294,8 @@ const LegacySection: React.FC = () => (
             Our Sharjah branch opened in {company.uaeOpened} and supplies stocked ANC-brand velvet, linen,
             blackout, sheer, chenille, leather, bouclé, and fire-retardant fabrics to trade and retail customers.
           </p>
-          <a
-            href="#"
+          <Link
+            to="/about-us"
             style={{
               color: "#C8A45A",
               fontSize: "12px",
@@ -306,7 +309,7 @@ const LegacySection: React.FC = () => (
             className="hover:opacity-80 transition-opacity"
           >
             Learn Our Story <ArrowRightIcon />
-          </a>
+          </Link>
         </div>
 
         {/* Image grid */}
@@ -405,25 +408,7 @@ const StatsSection: React.FC = () => (
 );
 
 // ── Collection Section ─────────────────────────────────────────────────────
-const collectionItems = [
-  {
-    title: "Velvet 8020",
-    category: "Upholstery",
-    image: textileImages.velvet,
-  },
-  {
-    title: "Sheer 9902",
-    category: "Curtain/Drape",
-    image: textileImages.swatches,
-  },
-  {
-    title: "Blackout 9902",
-    category: "Outdoor",
-    image: textileImages.loom,
-  },
-];
-
-const CollectionSection: React.FC = () => (
+const CollectionSection: React.FC<{ catalogs: Catalog[] }> = ({ catalogs }) => (
   <section
     style={{ backgroundColor: "#FAFAF8", paddingTop: "80px", paddingBottom: "80px" }}
     id="collections"
@@ -452,7 +437,7 @@ const CollectionSection: React.FC = () => (
               lineHeight: 1.2,
             }}
           >
-            The 2024 Collection
+            Latest Collections
           </h2>
         </div>
         <div className="flex items-center gap-2">
@@ -463,16 +448,17 @@ const CollectionSection: React.FC = () => (
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        {collectionItems.map((item) => (
-          <div
-            key={item.title}
+        {catalogs.map((item) => (
+          <Link
+            to={`/catalogs/${item.id}/colors`}
+            key={item.id}
             style={{ borderRadius: "6px", overflow: "hidden", cursor: "pointer" }}
             className="group"
           >
             <div style={{ aspectRatio: "4/5", overflow: "hidden", position: "relative" }}>
               <img
-                src={item.image}
-                alt={item.title}
+                src={item.thumbnail_path ?? textileImages.velvet}
+                alt={item.name}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 className="group-hover:scale-105 transition-transform duration-700"
               />
@@ -488,13 +474,13 @@ const CollectionSection: React.FC = () => (
             </div>
             <div style={{ padding: "14px 4px" }}>
               <p style={{ color: "#C8A45A", fontSize: "10px", letterSpacing: "0.12em", fontWeight: 600, marginBottom: "4px" }}>
-                {item.category}
+                {item.category?.name ?? item.material ?? "FABRIC"}
               </p>
               <h3 style={{ color: "#1A1814", fontSize: "14px", fontWeight: 600, letterSpacing: "0.01em" }}>
-                {item.title}
+                {item.name}
               </h3>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -906,17 +892,20 @@ export const LegacyHomeFooter: React.FC = () => (
 );
 
 // ── Main Page ──────────────────────────────────────────────────────────────
-const Home: React.FC = () => (
-  <div style={{ backgroundColor: "#FAFAF8", fontFamily: "Inter, system-ui, sans-serif" }}>
+const Home: React.FC = () => {
+  const { data } = useApi(() => api.getAll<Catalog>("catalogs", { status: "published", per_page: 100 }), []);
+  const catalogs = (data?.data ?? []).sort((left, right) => Number(right.is_new) - Number(left.is_new) || right.id - left.id).slice(0, 3);
+
+  return <div style={{ backgroundColor: "#FAFAF8", fontFamily: "Inter, system-ui, sans-serif" }}>
     <HeroSection />
     <LegacySection />
     <StatsSection />
-    <CollectionSection />
+    <CollectionSection catalogs={catalogs} />
     <VisualizerSection />
     <SpacesSection />
     <TestimonialSection />
     <CTASection />
-  </div>
-);
+  </div>;
+};
 
 export default Home;

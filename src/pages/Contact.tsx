@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { img as textileImages } from "@/pages/AboutUs";
 import { businessPolicies, company, whatsappUrl } from "@/constants/company";
+import { api, errorMessage, type ApiResource } from "@/lib/api";
+import type { Inquiry } from "@/types/api";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const MenuIcon: React.FC = () => (
@@ -189,6 +191,24 @@ export const LegacyContactFooter: React.FC = () => (
 );
 
 export const Contact: React.FC = () => {
+  const [form, setForm] = useState({ full_name: "", email: "", department: "Sales & Commercial", phone: "", message: "" });
+  const [formState, setFormState] = useState<"idle" | "submitting" | "success">("idle");
+  const [formError, setFormError] = useState<string | null>(null);
+  const updateField = (field: keyof typeof form, value: string) => setForm((current) => ({ ...current, [field]: value }));
+  const submitInquiry = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setFormState("submitting");
+    setFormError(null);
+    try {
+      await api.post<ApiResource<Inquiry>>("inquiries", form);
+      setFormState("success");
+      setForm({ full_name: "", email: "", department: "Sales & Commercial", phone: "", message: "" });
+    } catch (requestError) {
+      setFormError(errorMessage(requestError));
+      setFormState("idle");
+    }
+  };
+
   return (
     <div style={{ backgroundColor: "#FAFAF8", fontFamily: "Inter, system-ui, sans-serif", minHeight: "100vh" }} className="flex flex-col">
 
@@ -213,40 +233,42 @@ export const Contact: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
             
             {/* Form */}
-            <div style={{ backgroundColor: "#FFFFFF", borderRadius: "4px", padding: "32px", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" }}>
+            <form onSubmit={submitInquiry} style={{ backgroundColor: "#FFFFFF", borderRadius: "4px", padding: "32px", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" }}>
               <h2 style={{ fontSize: "20px", fontWeight: 600, color: "#1A1814", marginBottom: "24px" }}>Send an Inquiry</h2>
               
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label style={{ display: "block", fontSize: "9px", letterSpacing: "0.15em", color: "#8A857E", textTransform: "uppercase", marginBottom: "8px" }}>FULL NAME</label>
-                  <input type="text" placeholder="John Doe" style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent" }} />
+                  <input required value={form.full_name} onChange={(event) => updateField("full_name", event.target.value)} type="text" placeholder="John Doe" style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent" }} />
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: "9px", letterSpacing: "0.15em", color: "#8A857E", textTransform: "uppercase", marginBottom: "8px" }}>EMAIL ADDRESS</label>
-                  <input type="email" placeholder="john@example.com" style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent" }} />
+                  <input required value={form.email} onChange={(event) => updateField("email", event.target.value)} type="email" placeholder="john@example.com" style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent" }} />
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: "9px", letterSpacing: "0.15em", color: "#8A857E", textTransform: "uppercase", marginBottom: "8px" }}>DEPARTMENT</label>
-                  <select style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent", WebkitAppearance: "none", cursor: "pointer" }}>
+                  <select value={form.department} onChange={(event) => updateField("department", event.target.value)} style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent", WebkitAppearance: "none", cursor: "pointer" }}>
                     <option>Sales & Commercial</option>
                     <option>Support</option>
                   </select>
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: "9px", letterSpacing: "0.15em", color: "#8A857E", textTransform: "uppercase", marginBottom: "8px" }}>PHONE NUMBER</label>
-                  <input type="text" placeholder="+971 00 000 0000" style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent" }} />
+                  <input value={form.phone} onChange={(event) => updateField("phone", event.target.value)} type="tel" placeholder="+971 00 000 0000" style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent" }} />
                 </div>
               </div>
 
               <div className="mb-10">
                 <label style={{ display: "block", fontSize: "9px", letterSpacing: "0.15em", color: "#8A857E", textTransform: "uppercase", marginBottom: "8px" }}>YOUR MESSAGE</label>
-                <input type="text" placeholder="How can our design team assist you today?" style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent" }} />
+                <input required value={form.message} onChange={(event) => updateField("message", event.target.value)} type="text" placeholder="How can our design team assist you today?" style={{ width: "100%", borderBottom: "1px solid #EAE8E3", padding: "8px 0", fontSize: "12px", color: "#1A1814", outline: "none", backgroundColor: "transparent" }} />
               </div>
 
-              <button style={{ backgroundColor: "#1A1814", color: "#FFFFFF", fontSize: "10px", letterSpacing: "0.1em", fontWeight: 600, padding: "12px 24px", textTransform: "uppercase" }}>
-                SEND MESSAGE
+              {formError && <p role="alert" className="mb-4 text-sm text-red-700">{formError}</p>}
+              {formState === "success" && <p role="status" className="mb-4 text-sm text-green-700">Your inquiry was sent successfully.</p>}
+              <button disabled={formState === "submitting"} style={{ backgroundColor: "#1A1814", color: "#FFFFFF", fontSize: "10px", letterSpacing: "0.1em", fontWeight: 600, padding: "12px 24px", textTransform: "uppercase" }}>
+                {formState === "submitting" ? "SENDING…" : "SEND MESSAGE"}
               </button>
-            </div>
+            </form>
 
             {/* Info Cards */}
             <div className="space-y-6">
@@ -354,10 +376,10 @@ export const Contact: React.FC = () => {
                 businessPolicies.minimumOrder,
                 businessPolicies.returns
               ].map(q => (
-                <div key={q} style={{ backgroundColor: "#F4F3F0", padding: "20px 24px", borderRadius: "4px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
+                <Link to="/faq" key={q} style={{ backgroundColor: "#F4F3F0", padding: "20px 24px", borderRadius: "4px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", color: "inherit", textDecoration: "none" }}>
                   <p style={{ color: "#1A1814", fontSize: "12px", fontWeight: 500 }}>{q}</p>
                   <span style={{ color: "#6B6560" }}><ChevronDownIcon /></span>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

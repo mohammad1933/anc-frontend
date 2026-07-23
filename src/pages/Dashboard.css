@@ -3,3 +3,5 @@
 .db-logo{padding:15px 28px;background:#fff;gap:13px}.db-logo img{display:block;width:82px;height:96px;flex:none;object-fit:contain}.db-logo>b{color:#171714;font-size:14px;line-height:1.15;letter-spacing:.04em}
 .db-collection.royal{background-image:repeating-linear-gradient(120deg,#101b36 0 22px,#1a2d55 23px 46px,#091126 47px 63px)}
 .db-collection.linens{background-image:repeating-linear-gradient(88deg,#e9e1d2 0 18px,#cfc3ae 19px 22px,#f4efe6 23px 42px)}
+.db-panel-title a{font-size:12px;color:#805b00;text-decoration:none}.db-live-list{display:flex;flex-direction:column;gap:0;margin-top:18px}.db-live-list>a,.db-live-list>div{display:flex;justify-content:space-between;gap:18px;padding:14px 4px;border-bottom:1px solid #eee;color:#26231e;text-decoration:none;font-size:12px}.db-live-list span{color:#777;text-align:right}.db-trending .db-color small{font-size:10px;color:#888}
+.db-profile>button{z-index:2;margin-left:auto;margin-right:22px;border:0;background:none;color:#aaa;font-size:25px;cursor:pointer}

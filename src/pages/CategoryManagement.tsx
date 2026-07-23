@@ -1,63 +1,52 @@
+import { type FormEvent, useState } from "react";
 import "./CategoryManagement.css";
+import AdminModal from "@/components/admin/AdminModal";
+import { api, errorMessage, toFormData, type ApiResource } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
+import type { Category } from "@/types/api";
 
-const categories = [
-  { style: "curtains", name: "Curtain & Sheers", count: "28 Catalogs", description: "Fluid, lightweight fabrics with varying opacity levels for window treatments and spatial division.", dots: 1 },
-  { style: "outdoor", name: "Outdoor Performance", count: "15 Catalogs", description: "UV-resistant, water-repellent, and anti-microbial textiles engineered for terrace and poolside environments.", dots: 2 },
-  { style: "wall", name: "Wallcoverings", count: "12 Catalogs", description: "Textured and patterned wall textiles including silk, grasscloth, and vinyl-backed architectural solutions.", dots: 0 },
-  { style: "office", name: "Contract / Office", count: "31 Catalogs", description: "Acoustic solutions and flame-retardant (FR) textiles designed specifically for corporate and hospitality environments.", dots: 1 },
-];
-
-function CategoryCard({ category }: { category: typeof categories[number] }) {
-  return (
-    <article className="cg-card">
-      <div className={`cg-image ${category.style}`} />
-      <div className="cg-card-copy">
-        <div><h2>{category.name}</h2><span>{category.count}</span></div>
-        <p>{category.description}</p>
-        <footer><i>{[0, 1, 2].map(dot => <b className={dot < category.dots ? "on" : ""} key={dot} />)}</i><span>EDIT　 HIDE</span></footer>
-      </div>
-    </article>
-  );
-}
+const emptyForm = { parent_id: "", name: "", slug: "", description: "", status: "active", image_path: "", sort_order: 0 };
 
 export default function CategoryManagement() {
-  return (
-    <main className="cg-main">
-      <section className="cg-heading">
-        <div>
-          <p>Admin　›　<span>Category Management</span></p>
-          <h1>Fabric Categories</h1>
-          <h2>Define and organize the textile architecture. Categorize by material usage,<br />environment, and specialized properties.</h2>
-        </div>
-        <button>＋　 ADD NEW<br />　　CATEGORY</button>
-      </section>
-
-      <section className="cg-grid">
-        <article className="cg-featured">
-          <div className="cg-featured-image" />
-          <div className="cg-featured-copy">
-            <header><span>ACTIVE</span><div>✎　◉</div></header>
-            <h2>Upholstery</h2>
-            <p>Heavy-duty textiles designed for furniture covering, characterized by high Martindale rub counts and durability.</p>
-            <div className="cg-counts"><div><small>CATALOGS</small><b>42</b></div><div><small>SKUS</small><b>812</b></div></div>
-            <footer><span>VELVET</span><span>LINEN BLEND</span><span>LEATHER</span></footer>
-          </div>
-        </article>
-        {categories.map(category => <CategoryCard category={category} key={category.name} />)}
-      </section>
-
-      <section className="cg-archive">
-        <div className="cg-archive-title"><h2>Archive & Pending</h2><div><button>≡　Filter by Property</button><button>≡　Sort: Most Catalogs</button></div></div>
-        <div className="cg-table">
-          <div className="cg-table-head"><span>CATEGORY NAME</span><span>PARENT CATEGORY</span><span>INVENTORY</span><span>STATUS</span><span>ACTIONS</span></div>
-          <div className="cg-table-row">
-            <div><i>◒</i><p><b>Eco-Textiles</b><small>Recycled polyesters and organic cottons</small></p></div><span>General Fabrics</span><span><b>08</b> Catalogs</span><em>DRAFT</em><span className="actions">REVIEW　 DELETE</span>
-          </div>
-          <div className="cg-table-row">
-            <div><i>♢</i><p><b>Signature Silk</b><small>Hand-woven luxury mulberry silks</small></p></div><span>Upholstery / Wall</span><span><b>03</b> Catalogs</span><em className="hidden">HIDDEN</em><span className="actions">PUBLISH　 DELETE</span>
-          </div>
-        </div>
-      </section>
-    </main>
-  );
+  const { data, loading, error, reload } = useApi(() => api.getAll<Category>("categories", { per_page: 100 }), []);
+  const [editing, setEditing] = useState<Category | null>(null);
+  const [form, setForm] = useState(emptyForm);
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const categories = data?.data ?? [];
+  const edit = (category?: Category) => {
+    setEditing(category ?? null); setForm(category ? { parent_id: category.parent_id ? String(category.parent_id) : "", name: category.name, slug: category.slug, description: category.description ?? "", status: category.status, image_path: category.image_path ?? "", sort_order: category.sort_order ?? 0 } : emptyForm);
+    setFormError(null); setImage(null); setOpen(true);
+  };
+  const save = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setSaving(true); setFormError(null);
+    const payload = toFormData({ ...form, parent_id: form.parent_id, description: form.description, tags: [] }, "image", image);
+    try { editing ? await api.putForm<ApiResource<Category>>(`categories/${editing.id}`, payload) : await api.postForm<ApiResource<Category>>("categories", payload); setOpen(false); await reload(); }
+    catch (requestError) { setFormError(errorMessage(requestError)); } finally { setSaving(false); }
+  };
+  const remove = async (category: Category) => {
+    if (!window.confirm(`Delete category “${category.name}”? Catalogs will become unassigned.`)) return;
+    try { await api.delete(`categories/${category.id}`); await reload(); } catch (requestError) { window.alert(errorMessage(requestError)); }
+  };
+  return <main className="cg-main">
+    <section className="cg-heading"><div><p>Admin › Category Management</p><h1>Fabric Categories</h1><h2>Define and organize the textile architecture.</h2></div><button onClick={() => edit()}>＋ ADD NEW CATEGORY</button></section>
+    {loading && <p role="status">Loading categories…</p>}{error && <p role="alert">{error}</p>}
+    <section className="cg-grid">{categories.map((category) => <article className="cg-card" key={category.id}>
+      <div className="cg-image" style={category.image_path ? { backgroundImage: `url(${category.image_path})` } : undefined} />
+      <div className="cg-card-copy"><div><h2>{category.name}</h2><span>{category.catalogs_count ?? 0} Catalogs</span></div><p>{category.description}</p>
+        <footer><span>{category.status.toUpperCase()}</span><div className="admin-inline-actions"><button onClick={() => edit(category)}>Edit</button><button className="admin-danger" onClick={() => void remove(category)}>Delete</button></div></footer>
+      </div></article>)}</section>
+    {!loading && categories.length === 0 && <p>No categories yet. Create the first category to organize catalogs.</p>}
+    <AdminModal open={open} title={editing ? "Edit Category" : "Create Category"} saving={saving} error={formError} onClose={() => setOpen(false)} onSubmit={save}>
+      <label>NAME<input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+      <label>SLUG<input required value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} /></label>
+      <label>STATUS<select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">Active</option><option value="draft">Draft</option><option value="hidden">Hidden</option></select></label>
+      <label>PARENT CATEGORY<select value={form.parent_id} onChange={(e) => setForm({ ...form, parent_id: e.target.value })}><option value="">None</option>{categories.filter((category) => category.id !== editing?.id).map((category) => <option value={category.id} key={category.id}>{category.name}</option>)}</select></label>
+      <label>SORT ORDER<input type="number" min="0" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></label>
+      <label className="full">CATEGORY IMAGE<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setImage(e.target.files?.[0] ?? null)} /><small>{image?.name ?? (editing?.image_path ? "Keep current image" : "JPG, PNG or WebP, max 5 MB")}</small></label>
+      <label className="full">DESCRIPTION<textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
+    </AdminModal>
+  </main>;
 }

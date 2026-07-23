@@ -3,3 +3,4 @@
 .cm-sidebar>button{color:#111}
 .cm-head,.cm-row{grid-template-columns:145px 153px 170px 150px 164px 150px 84px}
 @media(max-width:1350px){.cm-head,.cm-row{grid-template-columns:120px 135px 145px 125px 145px 170px 80px}}
+.cm-filters input,.cm-filters select{height:50px;border:1px solid #ddd4c5;border-radius:9px;background:#fff;padding:0 16px;font-size:15px}.cm-filters input{min-width:280px}.cm-filters select{min-width:170px}

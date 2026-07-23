@@ -4,3 +4,9 @@
 .rv-card{cursor:pointer;transition:box-shadow .2s,transform .2s}.rv-card:hover{box-shadow:0 8px 22px #00000014;transform:translateY(-2px)}
 .rv-card footer a,.rv-card footer button{height:38px;border:1px solid #555;border-radius:7px;color:#333;text-decoration:none;font:9px Arial;background:#fff;display:flex;align-items:center;justify-content:center}
 .rv-card footer button{background:#c18c0d;border-color:#c18c0d}
+.rv-toolbar>label{display:flex;align-items:center;gap:8px}.rv-toolbar select{height:30px;border:0;border-bottom:1px solid #cfc7b8;background:transparent;padding:0 24px 0 6px;font-size:11px;color:#4f4a43;cursor:pointer}
+.rv-card footer{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.rv-card footer .rv-favorite{background:#fff;border-color:#b8b0a4;color:#554b3c}
+.rv-card footer .rv-favorite.active{background:#8b6500;border-color:#8b6500;color:#fff}
+.rv-card footer button:disabled{cursor:wait;opacity:.65}
+.rv-favorite-error{color:#9b2c2c;font-size:12px;margin:18px 0 -12px}

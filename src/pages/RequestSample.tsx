@@ -1,5 +1,8 @@
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
+import { api, errorMessage, type ApiResource } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
+import type { Catalog, SampleRequest as SampleRequestData } from "@/types/api";
 import "./RequestSample.css";
 
 const links = [
@@ -78,14 +81,45 @@ export function LegacyRequestSampleFooter() {
 }
 
 export default function RequestSample() {
+  const { data: catalogData, loading: catalogsLoading, error: catalogsError } = useApi(
+    () => api.getAll<Catalog>("catalogs", { status: "published", per_page: 100 }),
+    [],
+  );
+  const catalogs = catalogData?.data ?? [];
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [selectedSamples, setSelectedSamples] = useState(["Velvet 8020"]);
+  const [selectedSamples, setSelectedSamples] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [details, setDetails] = useState({
+    company_name: "", industry: "", full_name: "", country: "United Arab Emirates",
+    delivery_address: "", city: "", email: "", phone: "",
+  });
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (step < 2) setStep((current) => current + 1);
-    else setSubmitted(true);
+    setSubmitError(null);
+    if (step < 2) {
+      setStep((current) => current + 1);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await api.post<ApiResource<SampleRequestData>>("sample-requests", {
+        ...details,
+        items: selectedSamples.map((sample_name) => ({ sample_name, catalog_id: catalogs.find((catalog) => catalog.name === sample_name)?.id, quantity: 1 })),
+      });
+      setSubmitted(true);
+    } catch (requestError) {
+      setSubmitError(errorMessage(requestError));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const updateDetail = (field: keyof typeof details, value: string) => {
+    setDetails((current) => ({ ...current, [field]: value }));
   };
 
   const toggleSample = (sample: string) => {
@@ -128,40 +162,49 @@ export default function RequestSample() {
             <>
               <h2>Customer Details</h2>
               <div className="rs-fields">
-                <label><b>COMPANY NAME</b><input placeholder="Company name (optional)" /></label>
-                <label><b>INDUSTRY</b><input placeholder="Your industry" /></label>
-                <label><b>FULL NAME</b><input required placeholder="Full name" /></label>
-                <label><b>COUNTRY</b><input required defaultValue="United Arab Emirates" /></label>
+                <label><b>COMPANY NAME</b><input value={details.company_name} onChange={(event) => updateDetail("company_name", event.target.value)} placeholder="Company name (optional)" /></label>
+                <label><b>INDUSTRY</b><input value={details.industry} onChange={(event) => updateDetail("industry", event.target.value)} placeholder="Your industry" /></label>
+                <label><b>FULL NAME</b><input required value={details.full_name} onChange={(event) => updateDetail("full_name", event.target.value)} placeholder="Full name" /></label>
+                <label><b>COUNTRY</b><input required value={details.country} onChange={(event) => updateDetail("country", event.target.value)} /></label>
               </div>
             </>
           ) : step === 1 ? (
             <>
               <h2>Select Samples</h2>
               <p className="rs-card-intro">Choose up to three free A4 samples.</p>
+              {catalogsLoading && <p role="status">Loading available catalogs…</p>}
+              {catalogsError && <p role="alert">{catalogsError}</p>}
               <div className="rs-sample-options">
-                {["Velvet 8020", "Blackout 9902", "Sheer 9902", "Linen 11106", "Bouclé 2660", "Chenille Canna"].map((sample) => (
+                {catalogs.map((catalog) => (
+                  (() => {
+                    const sample = catalog.name;
+                    return (
                   <label className={selectedSamples.includes(sample) ? "selected" : ""} key={sample}>
                     <input type="checkbox" checked={selectedSamples.includes(sample)} onChange={() => toggleSample(sample)} />
-                    <span>{sample}</span><small>{selectedSamples.includes(sample) ? "SELECTED" : "SELECT"}</small>
+                    <span>{sample}</span><small>{catalog.material ?? (selectedSamples.includes(sample) ? "SELECTED" : "SELECT")}</small>
                   </label>
+                    );
+                  })()
                 ))}
               </div>
+              {!catalogsLoading && !catalogsError && catalogs.length === 0 && <p>No published catalogs are currently available for sampling.</p>}
             </>
           ) : (
             <>
               <h2>Delivery Details</h2>
               <div className="rs-fields">
-                <label><b>DELIVERY ADDRESS</b><input required placeholder="Street and building" /></label>
-                <label><b>CITY</b><input required placeholder="Sharjah" /></label>
-                <label><b>EMAIL ADDRESS</b><input required type="email" placeholder="name@company.com" /></label>
-                <label><b>PHONE NUMBER</b><input required type="tel" placeholder="+971 00 000 0000" /></label>
+                <label><b>DELIVERY ADDRESS</b><input required value={details.delivery_address} onChange={(event) => updateDetail("delivery_address", event.target.value)} placeholder="Street and building" /></label>
+                <label><b>CITY</b><input required value={details.city} onChange={(event) => updateDetail("city", event.target.value)} placeholder="Sharjah" /></label>
+                <label><b>EMAIL ADDRESS</b><input required type="email" value={details.email} onChange={(event) => updateDetail("email", event.target.value)} placeholder="name@company.com" /></label>
+                <label><b>PHONE NUMBER</b><input required type="tel" value={details.phone} onChange={(event) => updateDetail("phone", event.target.value)} placeholder="+971 00 000 0000" /></label>
               </div>
             </>
           )}
+          {submitError && <p role="alert" className="rs-card-intro">{submitError}</p>}
           <div className="rs-card-bottom">
             {!submitted && step > 0 && <button className="rs-back" type="button" onClick={() => setStep((current) => current - 1)}>←　BACK</button>}
-            {!submitted && <button type="submit">{step === 2 ? <>SUBMIT<br />REQUEST</> : <>NEXT<br />STEP <span>→</span></>}</button>}
-            {submitted && <button type="button" onClick={() => { setStep(0); setSubmitted(false); }}>NEW<br />REQUEST <span>→</span></button>}
+            {!submitted && <button type="submit" disabled={submitting || (step === 1 && selectedSamples.length === 0)}>{submitting ? <>SENDING<br />REQUEST</> : step === 2 ? <>SUBMIT<br />REQUEST</> : <>NEXT<br />STEP <span>→</span></>}</button>}
+            {submitted && <button type="button" onClick={() => { setStep(0); setSubmitted(false); setSelectedSamples([]); setDetails({ company_name: "", industry: "", full_name: "", country: "United Arab Emirates", delivery_address: "", city: "", email: "", phone: "" }); }}>NEW<br />REQUEST <span>→</span></button>}
           </div>
         </form>
       </main>

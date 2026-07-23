@@ -1,6 +1,7 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import "@/pages/Dashboard.css";
 import { company } from "@/constants/company";
+import { useAuth } from "@/hooks/AuthContext";
 
 const menuGroups = [
   {
@@ -17,32 +18,22 @@ const menuGroups = [
     title: "CRM & OPERATIONS",
     items: [
       ["▣", "Requests", "/dashboard/requests"],
+      ["✉", "Inquiries", "/dashboard/inquiries"],
       ["♧", "Customers", "/dashboard/customers"],
-      ["◧", "Pages", "/dashboard/pages"],
-      ["▧", "Media Library", "/dashboard/media"],
+      ["▥", "Projects", "/dashboard/projects"],
     ],
   },
   {
     title: "SYSTEM",
     items: [
-      ["♧", "Users", "/dashboard/users"],
       ["⚙", "Settings", "/dashboard/settings"],
-      ["▥", "Analytics", "/dashboard/analytics"],
     ],
   },
 ];
 
-const searchPlaceholders: Record<string, string> = {
-  "/dashboard/catalogs": "Search catalogs by name or SKU...",
-  "/dashboard/colors": "Search catalogs or colors...",
-  "/dashboard/requests": "Global search for collections or items...",
-  "/dashboard/categories": "Search categories, fabrics, or attributes...",
-  "/dashboard/customers": "Search customer directory...",
-  "/dashboard/services": "Search services or catalogs...",
-  "/dashboard/settings": "Search settings, users, or logs...",
-};
-
 export default function AdminLayout() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const isActive = (to: string) => to === "/dashboard" ? pathname === to : pathname.startsWith(to);
 
@@ -59,7 +50,7 @@ export default function AdminLayout() {
               <h2>{group.title}</h2>
               {group.items.map(([icon, label, to]) => (
                 <Link className={isActive(to) ? "active" : ""} to={to} key={label}>
-                  <i>{icon}</i><span>{label}</span>{label === "Requests" && <em>12</em>}
+                  <i>{icon}</i><span>{label}</span>
                 </Link>
               ))}
             </section>
@@ -67,20 +58,16 @@ export default function AdminLayout() {
         </div>
         <div className="db-profile">
           <div className="db-avatar">IN</div>
-          <div><b>Administrator</b><span>Admin Account</span></div>
-          <i>⇥</i>
+          <div><b>{user?.name ?? "Administrator"}</b><span>Admin Account</span></div>
+          <button type="button" aria-label="Log out" onClick={() => { logout(); navigate("/admin/login"); }}>⇥</button>
         </div>
       </aside>
 
       <div className="db-shell">
         <header className="db-header">
-          <label>
-            <span>⌕</span>
-            <input placeholder={searchPlaceholders[pathname] ?? "Search catalogs, requests, or customers..."} />
-          </label>
           <div className="db-account">
             <i>♧<b /></i><span />
-            <div><strong>Administrator</strong><small>ADMIN ACCOUNT</small></div>
+            <div><strong>{user?.name ?? "Administrator"}</strong><small>ADMIN ACCOUNT</small></div>
           </div>
         </header>
         <Outlet />
