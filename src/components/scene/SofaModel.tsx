@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { TransformControls, useGLTF } from "@react-three/drei";
-import { MODEL_PATH } from "@/constants/config";
+import { CURTAIN_MODEL_PATH, MODEL_PATH } from "@/constants/config";
 import { useConfigurator } from "@/hooks/ConfiguratorContext";
 import { loadFabricTexture } from "@/utils/textureCache";
 import type { TextureTransform } from "@/types/fabric";
@@ -24,8 +24,9 @@ function applyTextureTransform(texture: THREE.Texture, transform: TextureTransfo
  * base geometry and UVs are never touched — only the material's map.
  */
 export function SofaModel() {
-  const { scene } = useGLTF(MODEL_PATH) as unknown as GLTFResult;
-  const { activeFabric, transform, setStatus, setTextureResolution, roomPhotoUrl, roomTransformMode, roomTransformReset, roomControlsVisible } = useConfigurator();
+  const { activeFabric, transform, setStatus, setTextureResolution, roomPhotoUrl, roomTransformMode, roomTransformReset, roomControlsVisible, mockupModel } = useConfigurator();
+  const modelPath = mockupModel === "curtain" ? CURTAIN_MODEL_PATH : MODEL_PATH;
+  const { scene } = useGLTF(modelPath) as unknown as GLTFResult;
 
   const currentTextureRef = useRef<THREE.Texture | null>(null);
   const placementRef = useRef<THREE.Group>(null);
@@ -46,7 +47,7 @@ export function SofaModel() {
     return clone;
   }, [scene]);
 
-  const forEachSofaMesh = (callback: (mesh: THREE.Mesh) => void) => {
+  const forEachModelMesh = (callback: (mesh: THREE.Mesh) => void) => {
     clonedScene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) callback(child as THREE.Mesh);
     });
@@ -62,7 +63,7 @@ export function SofaModel() {
     let cancelled = false;
 
     if (!activeFabric) {
-      forEachSofaMesh((mesh) => {
+      forEachModelMesh((mesh) => {
         const material = mesh.material as THREE.MeshStandardMaterial;
         if (material) {
           material.map = null;
@@ -81,7 +82,7 @@ export function SofaModel() {
         applyTextureTransform(texture, transform);
         setTextureResolution({ width: activeFabric.width, height: activeFabric.height });
 
-        forEachSofaMesh((mesh) => {
+        forEachModelMesh((mesh) => {
           // Do not clone the GLB's embedded brown material. Besides its base
           // map, imported materials can retain shader defines and auxiliary
           // maps that continue to influence the result. A clean upholstery
@@ -123,11 +124,12 @@ export function SofaModel() {
     placementRef.current.scale.setScalar(1);
   }, [roomTransformReset]);
 
-  const sofa = <group ref={placementRef}><primitive object={clonedScene} position={[0, 0, 0]} /></group>;
+  const model = <group ref={placementRef}><primitive object={clonedScene} position={[0, 0, 0]} /></group>;
 
   return roomPhotoUrl
-    ? <TransformControls enabled={roomControlsVisible} showX={roomControlsVisible} showY={roomControlsVisible} showZ={roomControlsVisible} mode={roomTransformMode} space={roomTransformMode === "translate" ? "world" : "local"} size={0.75}>{sofa}</TransformControls>
-    : sofa;
+    ? <TransformControls enabled={roomControlsVisible} showX={roomControlsVisible} showY={roomControlsVisible} showZ={roomControlsVisible} mode={roomTransformMode} space={roomTransformMode === "translate" ? "world" : "local"} size={0.75}>{model}</TransformControls>
+    : model;
 }
 
 useGLTF.preload(MODEL_PATH);
+useGLTF.preload(CURTAIN_MODEL_PATH);

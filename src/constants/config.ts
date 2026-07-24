@@ -12,6 +12,7 @@ export const SUPPORTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 export const THUMBNAIL_SIZE = 160;
 
 export const MODEL_PATH = "/models/sofa.glb";
+export const CURTAIN_MODEL_PATH = "/models/curtain.glb";
 
 export const TEXTURE_SCALE_MIN = 0.25;
 export const TEXTURE_SCALE_MAX = 20;

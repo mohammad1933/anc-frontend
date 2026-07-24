@@ -14,7 +14,7 @@ interface SceneCanvasProps {
 }
 
 export function SceneCanvas({ canvasRef }: SceneCanvasProps) {
-  const { roomPhotoUrl } = useConfigurator();
+  const { roomPhotoUrl, mockupModel } = useConfigurator();
 
   return (
     <Canvas
@@ -46,7 +46,7 @@ export function SceneCanvas({ canvasRef }: SceneCanvasProps) {
           reframe the camera while a handle is dragged and make the sofa seem
           to disappear from an uploaded room.
         */}
-        <Bounds fit margin={1.35}>
+        <Bounds key={mockupModel} fit margin={1.35}>
           <SofaModel />
         </Bounds>
       </Suspense>

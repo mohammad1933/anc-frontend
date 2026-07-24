@@ -19,6 +19,8 @@ import { createThumbnail } from "@/utils/thumbnail";
 import { generateId } from "@/utils/id";
 import { disposeFabricTexture } from "@/utils/textureCache";
 
+export type MockupModelType = "sofa" | "curtain";
+
 interface ConfiguratorState {
   fabrics: Fabric[];
   activeFabricId: string | null;
@@ -33,6 +35,7 @@ interface ConfiguratorState {
   roomTransformMode: "translate" | "rotate" | "scale";
   roomTransformReset: number;
   roomControlsVisible: boolean;
+  mockupModel: MockupModelType;
 
   setSearchQuery: (query: string) => void;
   uploadFiles: (files: FileList | File[]) => Promise<void>;
@@ -48,6 +51,7 @@ interface ConfiguratorState {
   setRoomTransformMode: (mode: "translate" | "rotate" | "scale") => void;
   resetRoomTransform: () => void;
   setRoomControlsVisible: (visible: boolean) => void;
+  setMockupModel: (model: MockupModelType) => void;
 }
 
 const ConfiguratorCtx = createContext<ConfiguratorState | null>(null);
@@ -65,6 +69,7 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
   const [roomTransformMode, setRoomTransformMode] = useState<"translate" | "rotate" | "scale">("translate");
   const [roomTransformReset, setRoomTransformReset] = useState(0);
   const [roomControlsVisible, setRoomControlsVisible] = useState(true);
+  const [mockupModel, setMockupModelState] = useState<MockupModelType>("sofa");
   const roomPhotoRef = useRef<string | null>(null);
 
   // Guards against setting state after unmount during async thumbnail work.
@@ -162,6 +167,11 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     if (file) setRoomControlsVisible(true);
   }, []);
   const resetRoomTransform = useCallback(() => setRoomTransformReset((value) => value + 1), []);
+  const setMockupModel = useCallback((model: MockupModelType) => {
+    setMockupModelState(model);
+    setStatus("loading-model");
+    setRoomTransformReset((value) => value + 1);
+  }, []);
 
   const activeFabric = useMemo(
     () => fabrics.find((f) => f.id === activeFabricId) ?? null,
@@ -182,6 +192,7 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     roomTransformMode,
     roomTransformReset,
     roomControlsVisible,
+    mockupModel,
     setSearchQuery,
     uploadFiles,
     importFabric,
@@ -196,6 +207,7 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     setRoomTransformMode,
     resetRoomTransform,
     setRoomControlsVisible,
+    setMockupModel,
   };
 
   return <ConfiguratorCtx.Provider value={value}>{children}</ConfiguratorCtx.Provider>;
