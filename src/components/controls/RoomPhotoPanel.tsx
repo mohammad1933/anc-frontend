@@ -2,9 +2,10 @@ import { useRef, useState } from "react";
 import { useConfigurator } from "@/hooks/ConfiguratorContext";
 
 export function RoomPhotoPanel() {
-  const { roomPhotoUrl, setRoomPhoto, roomTransformMode, setRoomTransformMode, resetRoomTransform, roomControlsVisible, setRoomControlsVisible } = useConfigurator();
+  const { roomPhotoUrl, setRoomPhoto, roomTransformMode, setRoomTransformMode, resetRoomTransform, roomControlsVisible, setRoomControlsVisible, mockupModel } = useConfigurator();
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
+  const modelLabel = mockupModel === "curtain" ? "Curtain" : "Sofa";
 
   const selectPhoto = (file?: File) => {
     if (!file) return;
@@ -24,7 +25,7 @@ export function RoomPhotoPanel() {
     <section className="grid gap-3">
       <div>
         <p className="font-mono text-[10px] uppercase tracking-widest2 text-atelier-muted">Room visualization</p>
-        <h2 className="mt-1 font-display text-lg text-atelier-ivory">Place Sofa in Your Room</h2>
+        <h2 className="mt-1 font-display text-lg text-atelier-ivory">Place {modelLabel} in Your Room</h2>
       </div>
       {roomPhotoUrl && <img src={roomPhotoUrl} alt="Room preview" className="h-28 w-full rounded-sm border border-atelier-line object-cover" />}
       <input ref={inputRef} hidden type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => selectPhoto(event.target.files?.[0])} />
@@ -37,10 +38,10 @@ export function RoomPhotoPanel() {
         <div className="grid grid-cols-3 gap-1" aria-label="Sofa transform mode">
           {(["translate", "rotate", "scale"] as const).map((mode) => <button key={mode} type="button" aria-pressed={roomControlsVisible && roomTransformMode === mode} onClick={() => { setRoomTransformMode(mode); setRoomControlsVisible(true); }} className={`rounded-sm border px-2 py-2 font-mono text-[9px] uppercase tracking-wider ${roomControlsVisible && roomTransformMode === mode ? "border-atelier-brass bg-atelier-brass text-atelier-obsidian" : "border-atelier-line text-atelier-muted"}`}>{mode === "translate" ? "Move" : mode}</button>)}
         </div>
-        <button type="button" onClick={() => setRoomControlsVisible(!roomControlsVisible)} className={`rounded-sm border px-3 py-2.5 font-mono text-[10px] uppercase tracking-widest2 ${roomControlsVisible ? "border-atelier-brass bg-atelier-brass text-atelier-obsidian" : "border-atelier-line text-atelier-ivory"}`}>{roomControlsVisible ? "✓ Done Adjusting" : "Edit Sofa Placement"}</button>
-        <button type="button" onClick={resetRoomTransform} className="rounded-sm border border-atelier-line px-3 py-2 font-mono text-[10px] uppercase tracking-widest2 text-atelier-muted">Reset Sofa Placement</button>
+        <button type="button" onClick={() => setRoomControlsVisible(!roomControlsVisible)} className={`rounded-sm border px-3 py-2.5 font-mono text-[10px] uppercase tracking-widest2 ${roomControlsVisible ? "border-atelier-brass bg-atelier-brass text-atelier-obsidian" : "border-atelier-line text-atelier-ivory"}`}>{roomControlsVisible ? "✓ Done Adjusting" : `Edit ${modelLabel} Placement`}</button>
+        <button type="button" onClick={resetRoomTransform} className="rounded-sm border border-atelier-line px-3 py-2 font-mono text-[10px] uppercase tracking-widest2 text-atelier-muted">Reset {modelLabel} Placement</button>
         <div className="grid gap-1 rounded-sm border border-atelier-line bg-atelier-obsidian/40 p-3 text-[11px] leading-relaxed text-atelier-muted">
-          <span>Select <b className="text-atelier-ivory">Move, Rotate, or Scale</b>, then drag the colored axis handles directly on the sofa.</span>
+          <span>Select <b className="text-atelier-ivory">Move, Rotate, or Scale</b>, then drag the colored axis handles directly on the {modelLabel.toLowerCase()}.</span>
           <span><b className="text-red-300">Red</b> = left/right · <b className="text-green-300">Green</b> = up/down · <b className="text-blue-300">Blue</b> = depth</span>
         </div>
       </>}
