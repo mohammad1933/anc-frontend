@@ -33,7 +33,7 @@ function TrendingColors({ dashboard }: { dashboard: DashboardData }) {
       <div className="db-panel-title"><h2>Most Viewed Colors</h2><Link to="/dashboard/colors">View All</Link></div>
       {dashboard.trending_colors.map((color) => (
         <div className="db-color" key={color.id}>
-          <span style={{ background: color.hex_code ?? "#8d887f" }} />
+          <span style={color.swatch_path ? { backgroundImage: `url(${color.swatch_path})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined} />
           <div><p><b>{color.name}</b><em>{color.view_count ?? 0} views</em></p><small>{color.catalog?.name ?? "Unassigned catalog"}</small></div>
         </div>
       ))}

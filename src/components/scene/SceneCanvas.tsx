@@ -40,7 +40,13 @@ export function SceneCanvas({ canvasRef }: SceneCanvasProps) {
           matter its actual scale, proportions, or origin offset — instead
           of relying on a hardcoded camera position tuned for one model.
         */}
-        <Bounds fit observe margin={1.35}>
+        {/*
+          Fit on mount only. Continuously observing this subtree also measures
+          TransformControls' rotation/scale gizmos; that can cause Bounds to
+          reframe the camera while a handle is dragged and make the sofa seem
+          to disappear from an uploaded room.
+        */}
+        <Bounds fit margin={1.35}>
           <SofaModel />
         </Bounds>
       </Suspense>

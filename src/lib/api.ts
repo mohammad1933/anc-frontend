@@ -3,6 +3,10 @@ const API_BASE_URL = (
   "https://astonishing-celebration-production-9392.up.railway.app/api/v1"
 ).replace(/\/$/, "");
 
+export function apiUrl(path: string): string {
+  return `${API_BASE_URL}/${path.replace(/^\//, "")}`;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   links: Record<string, string | null>;
@@ -26,7 +30,7 @@ export class ApiError extends Error {
 type QueryValue = string | number | boolean | null | undefined;
 
 function buildUrl(path: string, query?: Record<string, QueryValue>): string {
-  const url = new URL(`${API_BASE_URL}/${path.replace(/^\//, "")}`, window.location.origin);
+  const url = new URL(apiUrl(path), window.location.origin);
   Object.entries(query ?? {}).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") url.searchParams.set(key, String(value));
   });

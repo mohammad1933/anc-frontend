@@ -7,7 +7,7 @@ import "./WorkspaceEnhancements.css";
 
 type Project={id:number;name:string;client:string;description?:string;cover_image:string;status:string;is_favorite:boolean;fabrics:any[];fabrics_count:number;palette:any[];inspiration_images:string[];members:any[];timeline:any[];recent_activity:any[];updated_human:string};
 type Favorite={id:number;favorite_folder_id:number|null;name:string;collection:string;material:string;image_url:string;colors:string[]};
-type ColorFavorite={id:number;name:string;code:string;hex_code?:string;swatch_path?:string;catalog?:{id:number;name:string}};
+type ColorFavorite={id:number;name:string;code:string;swatch_path?:string;catalog?:{id:number;name:string}};
 type Folder={id:number;name:string;favorites_count:number};
 const unwrap=<T,>(response:ApiResource<T>)=>response.data;
 
@@ -44,7 +44,7 @@ export function Favorites(){
   const visibleColors=folder?[]:colorItems;
   return <main className="workspace"><header className="workspace-head"><div><h1>My Favorites</h1><p>A curated selection of your most refined fabric choices.</p></div></header>{error&&<p className="workspace-state" role="alert">{error}</p>}<div className="favorite-layout"><aside className="folder-list"><button className={!folder?"active":""} onClick={()=>setFolder(undefined)}>All Items ({items.length+colorItems.length})</button>{folders.map(f=><button className={folder===f.id?"active":""} onClick={()=>setFolder(f.id)} key={f.id}>{f.name} ({f.favorites_count})</button>)}</aside><section className="favorite-grid">
     {items.map(f=><article className="favorite-card" key={`favorite-${f.id}`}><img src={f.image_url} alt=""/><div className="favorite-copy"><h2>{f.name}</h2><p>{f.collection} · {f.material}</p><div className="favorite-actions"><button onClick={()=>navigator.share?.({title:f.name})}>Share</button><button onClick={()=>api.post(`favorites/${f.id}/sample-request`,{})}>Request Sample</button><button onClick={async()=>{await api.delete(`favorites/${f.id}`);load()}}>Remove</button></div></div></article>)}
-    {visibleColors.map(color=><article className="favorite-card" key={`color-${color.id}`}>{color.swatch_path?<img src={color.swatch_path} alt={`${color.name} color swatch`}/>:<div className="favorite-color-swatch" style={{background:color.hex_code||"#777"}}/>}<div className="favorite-copy"><small>COLOR</small><h2>{color.name||color.code}</h2><p>{color.catalog?.name||"Catalog Color"} · {color.code}</p><div className="favorite-actions"><Link className="button" to={`/catalogs/${color.catalog?.id}/colors`}>View Color</Link><button onClick={async()=>{await api.patch(`colors/${color.id}/favorite`);load()}}>Remove</button></div></div></article>)}
+    {visibleColors.map(color=><article className="favorite-card" key={`color-${color.id}`}>{color.swatch_path?<img src={color.swatch_path} alt={`${color.name} color swatch`}/>:<div className="favorite-color-swatch"/>}<div className="favorite-copy"><small>COLOR</small><h2>{color.name||color.code}</h2><p>{color.catalog?.name||"Catalog Color"} · {color.code}</p><div className="favorite-actions"><Link className="button" to={`/catalogs/${color.catalog?.id}/colors`}>View Color</Link><button onClick={async()=>{await api.patch(`colors/${color.id}/favorite`);load()}}>Remove</button></div></div></article>)}
     {!error&&items.length===0&&visibleColors.length===0&&<p className="workspace-state">No favorites in this folder yet.</p>}
   </section></div></main>
 }

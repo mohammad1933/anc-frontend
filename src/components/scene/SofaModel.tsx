@@ -4,9 +4,18 @@ import { TransformControls, useGLTF } from "@react-three/drei";
 import { MODEL_PATH } from "@/constants/config";
 import { useConfigurator } from "@/hooks/ConfiguratorContext";
 import { loadFabricTexture } from "@/utils/textureCache";
+import type { TextureTransform } from "@/types/fabric";
 
 interface GLTFResult {
   scene: THREE.Group;
+}
+
+function applyTextureTransform(texture: THREE.Texture, transform: TextureTransform) {
+  texture.repeat.set(transform.scaleX, transform.scaleY);
+  texture.offset.set(transform.offsetX, transform.offsetY);
+  texture.rotation = THREE.MathUtils.degToRad(transform.rotation);
+  texture.center.set(0.5, 0.5);
+  texture.needsUpdate = true;
 }
 
 /**
@@ -18,26 +27,30 @@ export function SofaModel() {
   const { scene } = useGLTF(MODEL_PATH) as unknown as GLTFResult;
   const { activeFabric, transform, setStatus, setTextureResolution, roomPhotoUrl, roomTransformMode, roomTransformReset, roomControlsVisible } = useConfigurator();
 
-  const meshesRef = useRef<THREE.Mesh[]>([]);
   const currentTextureRef = useRef<THREE.Texture | null>(null);
   const placementRef = useRef<THREE.Group>(null);
 
-  // Clone the scene once so hot-reloads / multiple mounts don't share state,
-  // and collect every mesh that should receive the fabric material.
+  // Clone the scene once so hot-reloads / multiple mounts don't share state.
+  // Meshes are intentionally traversed from this committed clone in effects;
+  // caching them in a ref during render can point at Strict Mode's discarded
+  // render and leave the visible clone unchanged.
   const clonedScene = useMemo(() => {
     const clone = scene.clone(true);
-    const meshes: THREE.Mesh[] = [];
     clone.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
         mesh.castShadow = true;
         mesh.receiveShadow = true;
-        meshes.push(mesh);
       }
     });
-    meshesRef.current = meshes;
     return clone;
   }, [scene]);
+
+  const forEachSofaMesh = (callback: (mesh: THREE.Mesh) => void) => {
+    clonedScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) callback(child as THREE.Mesh);
+    });
+  };
 
   // Frame the sofa on load.
   useEffect(() => {
@@ -49,7 +62,7 @@ export function SofaModel() {
     let cancelled = false;
 
     if (!activeFabric) {
-      meshesRef.current.forEach((mesh) => {
+      forEachSofaMesh((mesh) => {
         const material = mesh.material as THREE.MeshStandardMaterial;
         if (material) {
           material.map = null;
@@ -61,44 +74,46 @@ export function SofaModel() {
     }
 
     setStatus("loading-texture");
-    loadFabricTexture(activeFabric.id, activeFabric.objectUrl).then((texture) => {
-      if (cancelled) return;
-      currentTextureRef.current = texture;
-      setTextureResolution({ width: activeFabric.width, height: activeFabric.height });
+    loadFabricTexture(activeFabric.id, activeFabric.objectUrl)
+      .then((texture) => {
+        if (cancelled) return;
+        currentTextureRef.current = texture;
+        applyTextureTransform(texture, transform);
+        setTextureResolution({ width: activeFabric.width, height: activeFabric.height });
 
-      meshesRef.current.forEach((mesh) => {
-        const existing = mesh.material as THREE.MeshStandardMaterial;
-        const material = existing?.isMeshStandardMaterial
-          ? existing
-          : new THREE.MeshStandardMaterial();
+        forEachSofaMesh((mesh) => {
+          // Do not clone the GLB's embedded brown material. Besides its base
+          // map, imported materials can retain shader defines and auxiliary
+          // maps that continue to influence the result. A clean upholstery
+          // material guarantees that the selected swatch is the base color.
+          const material = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            map: texture,
+            roughness: 0.85,
+            metalness: 0.02,
+            envMapIntensity: 0.6,
+          });
+          mesh.material = material;
+        });
 
-        material.map = texture;
-        material.roughness = 0.85;
-        material.metalness = 0.02;
-        material.envMapIntensity = 0.6;
-        material.needsUpdate = true;
-        mesh.material = material;
+        setStatus("ready");
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("error");
       });
-
-      setStatus("ready");
-    });
 
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFabric?.id, activeFabric?.objectUrl]);
+  }, [activeFabric?.id, activeFabric?.objectUrl, clonedScene]);
 
   // Apply live transform updates directly to the texture without reloading it.
   useEffect(() => {
     const texture = currentTextureRef.current;
     if (!texture) return;
 
-    texture.repeat.set(transform.scaleX, transform.scaleY);
-    texture.offset.set(transform.offsetX, transform.offsetY);
-    texture.rotation = THREE.MathUtils.degToRad(transform.rotation);
-    texture.center.set(0.5, 0.5);
-    texture.needsUpdate = true;
+    applyTextureTransform(texture, transform);
   }, [transform]);
 
   useEffect(() => {

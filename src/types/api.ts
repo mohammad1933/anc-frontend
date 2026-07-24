@@ -12,8 +12,9 @@ export interface Catalog {
 
 export interface Color {
   id: number; catalog_id: number; name: string; code: string; sku: string; type: "plain" | "pattern";
-  hex_code?: string; color_family?: string; price?: string; currency: string; stock_quantity: number;
-  stock_status: "in_stock" | "low_stock" | "out_of_stock" | "check_stock"; swatch_path?: string;
+  color_family?: string; price?: string; currency: string; stock_quantity: number;
+  swatch_path?: string; swatch_url?: string; texture_url?: string;
+  stock_status: "in_stock" | "low_stock" | "out_of_stock" | "check_stock";
   is_active: boolean; view_count?: number; catalog?: Pick<Catalog, "id" | "name" | "slug">;
 }
 

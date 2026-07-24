@@ -36,7 +36,7 @@ export default function ColorManagement() {
   const [editing, setEditing] = useState<Color | null>(null);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ catalog_id: "", name: "", code: "", sku: "", type: "plain", hex_code: "", price: "", currency: "AED", stock_quantity: 0, stock_status: "in_stock", swatch_path: "", is_active: true });
+  const [form, setForm] = useState({ catalog_id: "", name: "", code: "", sku: "", type: "plain", price: "", currency: "AED", stock_quantity: 0, stock_status: "in_stock", swatch_path: "", is_active: true });
   const [swatch, setSwatch] = useState<File | null>(null);
   const [selectedCatalog, setSelectedCatalog] = useState("");
   const [selectedType, setSelectedType] = useState<"all" | Color["type"]>("all");
@@ -74,11 +74,11 @@ export default function ColorManagement() {
   useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
   const edit = (color?: Color) => {
     setEditing(color ?? null); setActionError(null); setSwatch(null);
-    setForm(color ? { catalog_id: String(color.catalog_id), name: color.name, code: color.code, sku: color.sku, type: color.type, hex_code: color.hex_code ?? "", price: color.price ?? "", currency: color.currency, stock_quantity: color.stock_quantity, stock_status: color.stock_status, swatch_path: color.swatch_path ?? "", is_active: color.is_active } : { catalog_id: "", name: "", code: "", sku: "", type: "plain", hex_code: "", price: "", currency: "AED", stock_quantity: 0, stock_status: "in_stock", swatch_path: "", is_active: true }); setOpen(true);
+    setForm(color ? { catalog_id: String(color.catalog_id), name: color.name, code: color.code, sku: color.sku, type: color.type, price: color.price ?? "", currency: color.currency, stock_quantity: color.stock_quantity, stock_status: color.stock_status, swatch_path: color.swatch_path ?? "", is_active: color.is_active } : { catalog_id: "", name: "", code: "", sku: "", type: "plain", price: "", currency: "AED", stock_quantity: 0, stock_status: "in_stock", swatch_path: "", is_active: true }); setOpen(true);
   };
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setSaving(true); setActionError(null);
-    const payload = toFormData({ ...form, hex_code: form.hex_code, price: form.price }, "swatch", swatch);
+    const payload = toFormData({ ...form, price: form.price }, "swatch", swatch);
     try { editing ? await api.putForm(`colors/${editing.id}`, payload) : await api.postForm("colors", payload); setOpen(false); await reload(); } catch (requestError) { setActionError(errorMessage(requestError)); } finally { setSaving(false); }
   };
   const remove = async (color: Color) => { if (!window.confirm(`Delete color “${color.name}”?`)) return; try { await api.delete(`colors/${color.id}`); await reload(); } catch (requestError) { setActionError(errorMessage(requestError)); } };
@@ -151,7 +151,6 @@ export default function ColorManagement() {
         <label>CODE<input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></label>
         <label>SKU<input required value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} /></label>
         <label>TYPE<select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}><option value="plain">Plain</option><option value="pattern">Pattern</option></select></label>
-        <label>HEX COLOR<input value={form.hex_code} placeholder="#112233" onChange={(e) => setForm({ ...form, hex_code: e.target.value })} /></label>
         <label>PRICE<input type="number" min="0" step=".01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></label>
         <label>CURRENCY<input maxLength={3} value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value.toUpperCase() })} /></label>
         <label>QUANTITY<input type="number" min="0" value={form.stock_quantity} onChange={(e) => setForm({ ...form, stock_quantity: Number(e.target.value) })} /></label>

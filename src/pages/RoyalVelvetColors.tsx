@@ -3,19 +3,18 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { img as textileImages } from "@/pages/AboutUs";
 import "./RoyalVelvetColors.css";
 import { businessPolicies, whatsappUrl } from "@/constants/company";
-import { api, type ApiResource } from "@/lib/api";
+import { api, apiUrl, type ApiResource } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Catalog, Color } from "@/types/api";
 import { useAuth } from "@/hooks/AuthContext";
 
-function fabricTexture(base: string, highlight: string) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><defs><filter id="n"><feTurbulence baseFrequency=".055" numOctaves="4" seed="8"/><feComposite in="SourceGraphic" operator="in"/><feBlend mode="soft-light" in2="SourceGraphic"/></filter><linearGradient id="g" x2="1" y2="1"><stop stop-color="${highlight}"/><stop offset=".52" stop-color="${base}"/><stop offset="1" stop-color="${highlight}"/></linearGradient></defs><rect width="512" height="512" fill="url(#g)"/><rect width="512" height="512" fill="${base}" opacity=".48" filter="url(#n)"/></svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-}
-
 interface Swatch {
   id: string; numericId: number; style: Color["type"]; stock: string; stockQuantity: number;
-  name: string; texture: string;
+  name: string;
+  /** Image shown in the catalog card (may be hosted on remote storage). */
+  texture: string;
+  /** CORS-safe API URL for the original uploaded image used by WebGL. */
+  previewTexture: string | null;
 }
 
 function SwatchCard({ swatch, catalogName, isFavorite, favoritePending, onToggleFavorite }: {
@@ -26,26 +25,29 @@ function SwatchCard({ swatch, catalogName, isFavorite, favoritePending, onToggle
   onToggleFavorite: (colorId: number) => void;
 }) {
   const navigate = useNavigate();
-  const openMockup = () => navigate("/mockup", {
-    state: {
-      selectedFabric: {
-        id: swatch.id,
-        name: swatch.name,
-        fileName: `${swatch.id}.svg`,
-        fileSize: swatch.texture.length,
-        mimeType: "image/svg+xml",
-        objectUrl: swatch.texture,
-        thumbnail: swatch.texture,
-        width: 512,
-        height: 512,
-        createdAt: Date.now(),
+  const openMockup = () => {
+    if (!swatch.previewTexture) return;
+    navigate("/mockup", {
+      state: {
+        selectedFabric: {
+          id: swatch.id,
+          name: swatch.name,
+          fileName: `${swatch.id}.jpg`,
+          fileSize: 0,
+          mimeType: "image/jpeg",
+          objectUrl: swatch.previewTexture,
+          thumbnail: swatch.texture,
+          width: 512,
+          height: 512,
+          createdAt: Date.now(),
+        },
       },
-    },
-  });
+    });
+  };
 
   return (
-    <article className="rv-card" role="link" tabIndex={0} onClick={openMockup} onKeyDown={(event) => { if (event.key === "Enter") openMockup(); }}>
-      <div className={`rv-swatch ${swatch.style}`} style={{ backgroundImage: `url("${swatch.texture}")` }}><span>{swatch.stock}</span></div>
+    <article className="rv-card" role={swatch.previewTexture ? "link" : undefined} tabIndex={swatch.previewTexture ? 0 : undefined} onClick={openMockup} onKeyDown={(event) => { if (event.key === "Enter") openMockup(); }}>
+      <div className={`rv-swatch ${swatch.style}`} style={swatch.texture ? { backgroundImage: `url("${swatch.texture}")` } : undefined}><span>{swatch.stock}</span></div>
       <div className="rv-card-copy">
         <div><h2>{swatch.name}</h2><strong>PRICE ON REQUEST</strong></div>
         <p>{catalogName} · ANC Brand</p>
@@ -54,7 +56,7 @@ function SwatchCard({ swatch, catalogName, isFavorite, favoritePending, onToggle
           <button className={`rv-favorite${isFavorite ? " active" : ""}`} type="button" disabled={favoritePending} aria-pressed={isFavorite} onClick={(event) => { event.stopPropagation(); onToggleFavorite(swatch.numericId); }}>
             {isFavorite ? "♥ Favorited" : "♡ Favorite"}
           </button>
-          <button className="rv-preview" type="button" onClick={(event) => { event.stopPropagation(); openMockup(); }}>▣　Preview Sofa</button>
+          <button className="rv-preview" type="button" disabled={!swatch.previewTexture} onClick={(event) => { event.stopPropagation(); openMockup(); }}>{swatch.previewTexture ? "▣　Preview Sofa" : "No Image Available"}</button>
         </footer>
       </div>
     </article>
@@ -120,7 +122,6 @@ export default function RoyalVelvetColors() {
   const swatches: Swatch[] = (data?.data ?? [])
     .filter((color) => typeFilter === "all" || color.type === typeFilter)
     .map((color) => {
-      const base = color.hex_code ?? "#777777";
       return {
         id: color.code,
         numericId: color.id,
@@ -128,7 +129,9 @@ export default function RoyalVelvetColors() {
         style: color.type,
         stock: color.stock_status === "in_stock" ? "AVAILABLE" : color.stock_status.replaceAll("_", " ").toUpperCase(),
         stockQuantity: color.stock_quantity,
-        texture: color.swatch_path ?? fabricTexture(base, base),
+        texture: color.swatch_url ?? color.swatch_path ?? "",
+        previewTexture: color.texture_url
+          ?? (color.swatch_url || color.swatch_path ? apiUrl(`colors/${color.id}/texture`) : null),
       };
     })
     .sort((left, right) => {
