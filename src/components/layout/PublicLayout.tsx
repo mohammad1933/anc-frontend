@@ -13,7 +13,6 @@ const links = [
   ["CONTACT", "/contact"],
   ["ABOUT US", "/about-us"],
   ["FAQ", "/faq"],
-  ["DASHBOARD", "/dashboard"],
 ];
 
 export default function PublicLayout() {
@@ -47,7 +46,7 @@ export default function PublicLayout() {
             {links.map(([label, to]) => <Link className={pathname === to ? "active" : ""} to={to} key={to}>{label}</Link>)}
           </nav>
           <div className="public-actions">
-            {user ? <div className="account-menu"><button type="button" aria-label="Open account menu" onClick={()=>setAccountOpen(!accountOpen)}>{user.name.split(" ").map(part=>part[0]).slice(0,2).join("")}</button>{accountOpen&&<nav className="account-panel"><strong>{user.name}<small>{user.email}</small></strong><Link to="/projects" onClick={()=>setAccountOpen(false)}>Projects</Link><Link to="/favorites" onClick={()=>setAccountOpen(false)}>Favorites</Link>{user.role === "admin"&&<Link to="/dashboard">Admin Dashboard</Link>}<button type="button" onClick={logout}>Log Out</button></nav>}</div> : <><Link className="public-auth-link" to="/login">SIGN IN</Link><Link className="public-auth-link" to="/register">REGISTER</Link></>}
+            {user ? <div className="account-menu"><button type="button" aria-label="Open account menu" onClick={()=>setAccountOpen(!accountOpen)}>{user.name.split(" ").map(part=>part[0]).slice(0,2).join("")}</button>{accountOpen&&<nav className="account-panel"><strong>{user.name}<small>{user.email}</small></strong><Link to="/projects" onClick={()=>setAccountOpen(false)}>Projects</Link><Link to="/favorites" onClick={()=>setAccountOpen(false)}>Favorites</Link><button type="button" onClick={logout}>Log Out</button></nav>}</div> : <><Link className="public-auth-link" to="/login">SIGN IN</Link><Link className="public-auth-link" to="/register">REGISTER</Link></>}
           </div>
           <button className="public-menu" type="button" aria-label="Toggle menu" onClick={() => setOpen(!open)}>{open ? "×" : "☰"}</button>
         </div>

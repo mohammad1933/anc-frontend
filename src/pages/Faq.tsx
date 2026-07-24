@@ -9,7 +9,6 @@ const navLinks = [
   ["FABRIC MOCKUP", "/mockup"],
   ["SERVICES", "/services"],
   ["ABOUT US", "/about-us"],
-  ["DASHBOARD", "/dashboard"],
 ];
 
 const sections = [

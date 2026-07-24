@@ -5,6 +5,7 @@ import { company, whatsappUrl } from "@/constants/company";
 import { api } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Catalog } from "@/types/api";
+import visualize from '../assets/Untitled.png';
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const MenuIcon: React.FC = () => (
@@ -37,7 +38,6 @@ const navLinks = [
   { label: "FABRIC MOCKUP", to: "/mockup" },
   { label: "SERVICES", to: "/services" },
   { label: "ABOUT US", to: "/about-us" },
-  { label: "DASHBOARD", to: "/dashboard" },
 ];
 
 // ── Navbar ─────────────────────────────────────────────────────────────────
@@ -152,6 +152,7 @@ export const LegacyHomeNavbar: React.FC = () => {
     </nav>
   );
 };
+
 
 // ── Hero Section ───────────────────────────────────────────────────────────
 const HeroSection: React.FC = () => (
@@ -325,7 +326,7 @@ const LegacySection: React.FC = () => (
             </div>
             <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "1/1" }}>
               <img
-                src={textileImages.swatches}
+                src={textileImages.lab}
                 alt="Fabric detail"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 className="hover:scale-105 transition-transform duration-700"
@@ -343,7 +344,7 @@ const LegacySection: React.FC = () => (
             </div>
             <div style={{ borderRadius: "6px", overflow: "hidden", aspectRatio: "3/4" }}>
               <img
-                src={textileImages.lab}
+                src={textileImages.swatches}
                 alt="Silk drape"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 className="hover:scale-105 transition-transform duration-700"
@@ -590,9 +591,9 @@ const VisualizerSection: React.FC = () => (
           }}
         >
           <img
-            src={textileImages.shop}
+            src={visualize}
             alt="Fabric Visualizer"
-            style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.75 }}
+            style={{ width: "100%", height: "100%", objectFit: "fill", opacity: 0.75 }}
           />
         </div>
       </div>
@@ -604,7 +605,7 @@ const VisualizerSection: React.FC = () => (
 const spaces = [
   {
     title: "Residential",
-    image: textileImages.hero,
+    image: textileImages.residential,
   },
   {
     title: "Commercial",
@@ -612,7 +613,7 @@ const spaces = [
   },
   {
     title: "Corporate",
-    image: textileImages.lab,
+    image: textileImages.coroporate,
   },
 ];
 

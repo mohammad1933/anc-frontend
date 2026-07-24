@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { TransformControls, useGLTF } from "@react-three/drei";
-import { CURTAIN_MODEL_PATH, MODEL_PATH } from "@/constants/config";
+import { CHAIR_MODEL_PATH, CURTAIN_MODEL_PATH, MODEL_PATH } from "@/constants/config";
 import { useConfigurator } from "@/hooks/ConfiguratorContext";
 import { loadFabricTexture } from "@/utils/textureCache";
 import type { TextureTransform } from "@/types/fabric";
@@ -24,39 +24,65 @@ function applyTextureTransform(texture: THREE.Texture, transform: TextureTransfo
  * base geometry and UVs are never touched — only the material's map.
  */
 export function SofaModel() {
-  const { activeFabric, transform, setStatus, setTextureResolution, roomPhotoUrl, roomTransformMode, roomTransformReset, roomControlsVisible, mockupModel } = useConfigurator();
-  const modelPath = mockupModel === "curtain" ? CURTAIN_MODEL_PATH : MODEL_PATH;
+  const {
+    activeFabric,
+    transform,
+    setStatus,
+    setTextureResolution,
+    roomPhotoUrl,
+    roomTransformMode,
+    roomTransformReset,
+    roomControlsVisible,
+    mockupModel,
+    modelInstances,
+    modelInstanceTransforms,
+    activeModelInstanceId,
+    setActiveModelInstanceId,
+    setRoomControlsVisible,
+    openModelContextMenu,
+    updateModelInstanceTransform,
+  } = useConfigurator();
+  const modelPath = mockupModel === "curtain"
+    ? CURTAIN_MODEL_PATH
+    : mockupModel === "chair"
+      ? CHAIR_MODEL_PATH
+      : MODEL_PATH;
   const { scene } = useGLTF(modelPath) as unknown as GLTFResult;
+  const instanceIds = modelInstances[mockupModel];
 
   const currentTextureRef = useRef<THREE.Texture | null>(null);
-  const placementRef = useRef<THREE.Group>(null);
+  const placementRefs = useRef(new Map<string, THREE.Group>());
 
   // Clone the scene once so hot-reloads / multiple mounts don't share state.
   // Meshes are intentionally traversed from this committed clone in effects;
   // caching them in a ref during render can point at Strict Mode's discarded
   // render and leave the visible clone unchanged.
-  const clonedScene = useMemo(() => {
-    const clone = scene.clone(true);
-    clone.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-      }
+  const instanceScenes = useMemo(() => {
+    return instanceIds.map((id) => {
+      const clone = scene.clone(true);
+      clone.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+        }
+      });
+      return { id, scene: clone };
     });
-    return clone;
-  }, [scene]);
+  }, [instanceIds, scene]);
 
   const forEachModelMesh = (callback: (mesh: THREE.Mesh) => void) => {
-    clonedScene.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) callback(child as THREE.Mesh);
+    instanceScenes.forEach((instance) => {
+      instance.scene.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) callback(child as THREE.Mesh);
+      });
     });
   };
 
   // Frame the sofa on load.
   useEffect(() => {
     setStatus("ready");
-  }, [clonedScene, setStatus]);
+  }, [instanceScenes, setStatus]);
 
   // Apply / swap the texture whenever the active fabric changes.
   useEffect(() => {
@@ -107,7 +133,7 @@ export function SofaModel() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFabric?.id, activeFabric?.objectUrl, clonedScene]);
+  }, [activeFabric?.id, activeFabric?.objectUrl, instanceScenes]);
 
   // Apply live transform updates directly to the texture without reloading it.
   useEffect(() => {
@@ -117,19 +143,81 @@ export function SofaModel() {
     applyTextureTransform(texture, transform);
   }, [transform]);
 
-  useEffect(() => {
-    if (!placementRef.current) return;
-    placementRef.current.position.set(0, 0, 0);
-    placementRef.current.rotation.set(0, 0, 0);
-    placementRef.current.scale.setScalar(1);
-  }, [roomTransformReset]);
+  const modelScale = mockupModel === "chair" ? 100 : 1;
 
-  const model = <group ref={placementRef}><primitive object={clonedScene} position={[0, 0, 0]} /></group>;
+  useLayoutEffect(() => {
+    instanceScenes.forEach((instance) => {
+      const placement = placementRefs.current.get(instance.id);
+      const saved = modelInstanceTransforms[instance.id];
+      if (!placement || !saved) return;
+      placement.position.fromArray(saved.position);
+      placement.rotation.set(...saved.rotation);
+      placement.scale.fromArray(saved.scale);
+    });
+    // Live transforms remain owned by Three.js. Reapply saved values only
+    // when instances mount/change or the user explicitly resets placement.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instanceScenes, roomTransformReset]);
 
-  return roomPhotoUrl
-    ? <TransformControls enabled={roomControlsVisible} showX={roomControlsVisible} showY={roomControlsVisible} showZ={roomControlsVisible} mode={roomTransformMode} space={roomTransformMode === "translate" ? "world" : "local"} size={0.75}>{model}</TransformControls>
-    : model;
+  return (
+    <group>
+      {instanceScenes.map((instance) => {
+        const instanceTransform = modelInstanceTransforms[instance.id];
+        const model = (
+          <group
+            key={instance.id}
+            ref={(node) => {
+              if (node) placementRefs.current.set(instance.id, node);
+              else placementRefs.current.delete(instance.id);
+            }}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              setActiveModelInstanceId(instance.id);
+              setRoomControlsVisible(true);
+            }}
+            onContextMenu={(event) => {
+              event.stopPropagation();
+              event.nativeEvent.preventDefault();
+              openModelContextMenu({
+                instanceId: instance.id,
+                x: event.nativeEvent.offsetX,
+                y: event.nativeEvent.offsetY,
+              });
+            }}
+          >
+            <group scale={modelScale}>
+              <primitive object={instance.scene} position={[0, 0, 0]} />
+            </group>
+          </group>
+        );
+
+        return roomPhotoUrl && activeModelInstanceId === instance.id
+          ? <TransformControls
+              key={instance.id}
+              enabled={roomControlsVisible}
+              showX={roomControlsVisible}
+              showY={roomControlsVisible}
+              showZ={roomControlsVisible}
+              mode={roomTransformMode}
+              space={roomTransformMode === "translate" ? "world" : "local"}
+              size={0.75}
+              onMouseUp={() => {
+                const placement = placementRefs.current.get(instance.id);
+                if (!placement || !instanceTransform) return;
+                updateModelInstanceTransform(instance.id, {
+                  position: placement.position.toArray(),
+                  rotation: [placement.rotation.x, placement.rotation.y, placement.rotation.z],
+                  scale: placement.scale.toArray(),
+                  homePosition: instanceTransform.homePosition,
+                });
+              }}
+            >{model}</TransformControls>
+          : model;
+      })}
+    </group>
+  );
 }
 
 useGLTF.preload(MODEL_PATH);
 useGLTF.preload(CURTAIN_MODEL_PATH);
+useGLTF.preload(CHAIR_MODEL_PATH);

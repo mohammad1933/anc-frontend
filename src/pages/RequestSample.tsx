@@ -11,7 +11,6 @@ const links = [
   ["FABRIC MOCKUP", "/mockup"],
   ["SERVICES", "/services"],
   ["ABOUT US", "/about-us"],
-  ["DASHBOARD", "/dashboard"],
 ];
 
 export function LegacyRequestSampleHeader() {

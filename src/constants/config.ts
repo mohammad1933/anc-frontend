@@ -13,6 +13,7 @@ export const THUMBNAIL_SIZE = 160;
 
 export const MODEL_PATH = "/models/sofa.glb";
 export const CURTAIN_MODEL_PATH = "/models/curtain.glb";
+export const CHAIR_MODEL_PATH = "/models/chair.glb";
 
 export const TEXTURE_SCALE_MIN = 0.25;
 export const TEXTURE_SCALE_MAX = 20;

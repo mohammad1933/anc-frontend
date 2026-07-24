@@ -5,7 +5,7 @@ export function RoomPhotoPanel() {
   const { roomPhotoUrl, setRoomPhoto, roomTransformMode, setRoomTransformMode, resetRoomTransform, roomControlsVisible, setRoomControlsVisible, mockupModel } = useConfigurator();
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
-  const modelLabel = mockupModel === "curtain" ? "Curtain" : "Sofa";
+  const modelLabel = mockupModel === "curtain" ? "Curtain" : mockupModel === "chair" ? "Chair" : "Sofa";
 
   const selectPhoto = (file?: File) => {
     if (!file) return;
@@ -41,6 +41,7 @@ export function RoomPhotoPanel() {
         <button type="button" onClick={() => setRoomControlsVisible(!roomControlsVisible)} className={`rounded-sm border px-3 py-2.5 font-mono text-[10px] uppercase tracking-widest2 ${roomControlsVisible ? "border-atelier-brass bg-atelier-brass text-atelier-obsidian" : "border-atelier-line text-atelier-ivory"}`}>{roomControlsVisible ? "✓ Done Adjusting" : `Edit ${modelLabel} Placement`}</button>
         <button type="button" onClick={resetRoomTransform} className="rounded-sm border border-atelier-line px-3 py-2 font-mono text-[10px] uppercase tracking-widest2 text-atelier-muted">Reset {modelLabel} Placement</button>
         <div className="grid gap-1 rounded-sm border border-atelier-line bg-atelier-obsidian/40 p-3 text-[11px] leading-relaxed text-atelier-muted">
+          <span><b className="text-atelier-ivory">Left-click any model</b> to select it and show controls for that model only.</span>
           <span>Select <b className="text-atelier-ivory">Move, Rotate, or Scale</b>, then drag the colored axis handles directly on the {modelLabel.toLowerCase()}.</span>
           <span><b className="text-red-300">Red</b> = left/right · <b className="text-green-300">Green</b> = up/down · <b className="text-blue-300">Blue</b> = depth</span>
         </div>

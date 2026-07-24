@@ -82,7 +82,6 @@ const navLinks = [
   { label: "FABRIC MOCKUP", to: "/mockup" },
   { label: "SERVICES", to: "/services" },
   { label: "ABOUT US", to: "/about-us" },
-  { label: "DASHBOARD", to: "/dashboard" },
 ];
 
 export const LegacyCatalogsNavbar: React.FC = () => {
