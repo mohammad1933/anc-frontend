@@ -11,7 +11,7 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
  * relying on hardcoded position/target guesses.
  */
 export function CameraRig() {
-  const { roomPhotoUrl } = useConfigurator();
+  const { roomPhotoUrl, isTransforming } = useConfigurator();
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
   const constrainPlacement = () => {
@@ -29,6 +29,7 @@ export function CameraRig() {
       <OrbitControls
         ref={controlsRef}
         makeDefault
+        enabled={!isTransforming}
         enablePan
         screenSpacePanning
         panSpeed={0.65}

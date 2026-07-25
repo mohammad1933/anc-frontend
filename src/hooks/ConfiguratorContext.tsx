@@ -49,10 +49,12 @@ interface ConfiguratorState {
   roomTransformMode: "translate" | "rotate" | "scale";
   roomTransformReset: number;
   roomControlsVisible: boolean;
+  isTransforming: boolean;
   mockupModel: MockupModelType;
   modelInstances: ModelInstances;
   modelInstanceTransforms: Record<string, ModelInstanceTransform>;
-  activeModelInstanceId: string;
+  modelInstanceFabricIds: Record<string, string | null>;
+  activeModelInstanceId: string | null;
   modelContextMenu: ModelContextMenu | null;
 
   setSearchQuery: (query: string) => void;
@@ -69,8 +71,9 @@ interface ConfiguratorState {
   setRoomTransformMode: (mode: "translate" | "rotate" | "scale") => void;
   resetRoomTransform: () => void;
   setRoomControlsVisible: (visible: boolean) => void;
+  setTransforming: (transforming: boolean) => void;
   setMockupModel: (model: MockupModelType) => void;
-  setActiveModelInstanceId: (id: string) => void;
+  setActiveModelInstanceId: (id: string | null) => void;
   openModelContextMenu: (menu: ModelContextMenu) => void;
   closeModelContextMenu: () => void;
   duplicateModelInstance: (id: string) => void;
@@ -93,20 +96,25 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
   const [roomTransformMode, setRoomTransformMode] = useState<"translate" | "rotate" | "scale">("translate");
   const [roomTransformReset, setRoomTransformReset] = useState(0);
   const [roomControlsVisible, setRoomControlsVisible] = useState(true);
+  const [isTransforming, setTransforming] = useState(false);
   const [mockupModel, setMockupModelState] = useState<MockupModelType>("sofa");
   const [modelInstances, setModelInstances] = useState<ModelInstances>({
     sofa: ["sofa-1"],
     curtain: ["curtain-1"],
     chair: ["chair-1"],
   });
-  const [activeModelInstanceId, setActiveModelInstanceId] = useState("sofa-1");
+  const [activeModelInstanceId, setActiveModelInstanceId] = useState<string | null>("sofa-1");
   const [modelInstanceTransforms, setModelInstanceTransforms] = useState<Record<string, ModelInstanceTransform>>({
     "sofa-1": { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1], homePosition: [0, 0, 0] },
     "curtain-1": { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1], homePosition: [0, 0, 0] },
     "chair-1": { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1], homePosition: [0, 0, 0] },
   });
+  const [modelInstanceFabricIds, setModelInstanceFabricIds] = useState<Record<string, string | null>>({
+    "sofa-1": null,
+    "curtain-1": null,
+    "chair-1": null,
+  });
   const [modelContextMenu, setModelContextMenu] = useState<ModelContextMenu | null>(null);
-  const modelInstanceCounter = useRef(1);
   const roomPhotoRef = useRef<string | null>(null);
 
   // Guards against setting state after unmount during async thumbnail work.
@@ -152,20 +160,29 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     if (accepted.length > 0) {
       setFabrics((prev) => [...accepted, ...prev]);
       setActiveFabricId(accepted[0].id);
+      if (activeModelInstanceId) {
+        setModelInstanceFabricIds((current) => ({ ...current, [activeModelInstanceId]: accepted[0].id }));
+      }
     }
     setRejections(newRejections);
     setIsUploading(false);
-  }, []);
+  }, [activeModelInstanceId]);
 
   const selectFabric = useCallback((id: string) => {
     setActiveFabricId(id);
-  }, []);
+    if (activeModelInstanceId) {
+      setModelInstanceFabricIds((current) => ({ ...current, [activeModelInstanceId]: id }));
+    }
+  }, [activeModelInstanceId]);
 
   const importFabric = useCallback((fabric: Fabric) => {
     setFabrics((current) => [fabric, ...current.filter((item) => item.id !== fabric.id)]);
     setActiveFabricId(fabric.id);
+    if (activeModelInstanceId) {
+      setModelInstanceFabricIds((current) => ({ ...current, [activeModelInstanceId]: fabric.id }));
+    }
     setTransform(DEFAULT_TEXTURE_TRANSFORM);
-  }, []);
+  }, [activeModelInstanceId]);
 
   const removeFabric = useCallback((id: string) => {
     setFabrics((prev) => {
@@ -177,6 +194,9 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
       return prev.filter((f) => f.id !== id);
     });
     setActiveFabricId((current) => (current === id ? null : current));
+    setModelInstanceFabricIds((current) => Object.fromEntries(
+      Object.entries(current).map(([instanceId, fabricId]) => [instanceId, fabricId === id ? null : fabricId]),
+    ));
   }, []);
 
   const updateTransform = useCallback((patch: Partial<TextureTransform>) => {
@@ -205,6 +225,7 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
   }, []);
   const resetRoomTransform = useCallback(() => {
     setModelInstanceTransforms((current) => {
+      if (!activeModelInstanceId) return current;
       const transform = current[activeModelInstanceId];
       if (!transform) return current;
       return {
@@ -222,20 +243,22 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
   const setMockupModel = useCallback((model: MockupModelType) => {
     setMockupModelState(model);
     setModelContextMenu(null);
-    setActiveModelInstanceId(modelInstances[model][0]);
+    const firstId = modelInstances[model][0] ?? null;
+    setActiveModelInstanceId(firstId);
+    setActiveFabricId(firstId ? modelInstanceFabricIds[firstId] ?? null : null);
     setStatus("loading-model");
     setRoomTransformReset((value) => value + 1);
-  }, [modelInstances]);
+  }, [modelInstanceFabricIds, modelInstances]);
   const openModelContextMenu = useCallback((menu: ModelContextMenu) => {
     setActiveModelInstanceId(menu.instanceId);
+    setActiveFabricId(modelInstanceFabricIds[menu.instanceId] ?? null);
     setModelContextMenu(menu);
-  }, []);
+  }, [modelInstanceFabricIds]);
   const closeModelContextMenu = useCallback(() => setModelContextMenu(null), []);
   const duplicateModelInstance = useCallback((id: string) => {
     const sourceIndex = modelInstances[mockupModel].indexOf(id);
     if (sourceIndex < 0) return;
-    modelInstanceCounter.current += 1;
-    const duplicateId = `${mockupModel}-${modelInstanceCounter.current}`;
+    const duplicateId = generateId();
     const next = [...modelInstances[mockupModel]];
     next.splice(sourceIndex + 1, 0, duplicateId);
     const sourceTransform = modelInstanceTransforms[id];
@@ -256,9 +279,12 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
         homePosition: [...duplicatePosition],
       },
     });
+    const duplicateFabricId = modelInstanceFabricIds[id] ?? null;
+    setModelInstanceFabricIds((current) => ({ ...current, [duplicateId]: duplicateFabricId }));
+    setActiveFabricId(duplicateFabricId);
     setActiveModelInstanceId(duplicateId);
     setModelContextMenu(null);
-  }, [mockupModel, modelInstances, modelInstanceTransforms]);
+  }, [mockupModel, modelInstanceFabricIds, modelInstances, modelInstanceTransforms]);
   const deleteModelInstance = useCallback((id: string) => {
     if (modelInstances[mockupModel].length <= 1) return;
     const next = modelInstances[mockupModel].filter((instanceId) => instanceId !== id);
@@ -268,9 +294,15 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
       delete remaining[id];
       return remaining;
     });
-    setActiveModelInstanceId(next[0]);
+    setModelInstanceFabricIds((current) => {
+      const remaining = { ...current };
+      delete remaining[id];
+      return remaining;
+    });
+    setActiveModelInstanceId(next[0] ?? null);
+    setActiveFabricId(next[0] ? modelInstanceFabricIds[next[0]] ?? null : null);
     setModelContextMenu(null);
-  }, [mockupModel, modelInstances]);
+  }, [mockupModel, modelInstanceFabricIds, modelInstances]);
   const updateModelInstanceTransform = useCallback((id: string, transform: ModelInstanceTransform) => {
     setModelInstanceTransforms((current) => ({ ...current, [id]: transform }));
   }, []);
@@ -279,6 +311,12 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     () => fabrics.find((f) => f.id === activeFabricId) ?? null,
     [fabrics, activeFabricId],
   );
+
+  const selectModelInstance = useCallback((id: string | null) => {
+    setActiveModelInstanceId(id);
+    setActiveFabricId(id ? modelInstanceFabricIds[id] ?? null : null);
+    setModelContextMenu(null);
+  }, [modelInstanceFabricIds]);
 
   const value: ConfiguratorState = {
     fabrics,
@@ -294,9 +332,11 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     roomTransformMode,
     roomTransformReset,
     roomControlsVisible,
+    isTransforming,
     mockupModel,
     modelInstances,
     modelInstanceTransforms,
+    modelInstanceFabricIds,
     activeModelInstanceId,
     modelContextMenu,
     setSearchQuery,
@@ -313,8 +353,9 @@ export function ConfiguratorProvider({ children }: { children: ReactNode }) {
     setRoomTransformMode,
     resetRoomTransform,
     setRoomControlsVisible,
+    setTransforming,
     setMockupModel,
-    setActiveModelInstanceId,
+    setActiveModelInstanceId: selectModelInstance,
     openModelContextMenu,
     closeModelContextMenu,
     duplicateModelInstance,

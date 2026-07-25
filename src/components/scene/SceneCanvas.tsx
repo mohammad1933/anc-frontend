@@ -14,7 +14,7 @@ interface SceneCanvasProps {
 }
 
 export function SceneCanvas({ canvasRef }: SceneCanvasProps) {
-  const { roomPhotoUrl, mockupModel, modelInstances } = useConfigurator();
+  const { roomPhotoUrl, mockupModel, modelInstances, setActiveModelInstanceId } = useConfigurator();
 
   return (
     <Canvas
@@ -25,6 +25,7 @@ export function SceneCanvas({ canvasRef }: SceneCanvasProps) {
       onCreated={({ gl }) => {
         canvasRef.current = gl.domElement;
       }}
+      onPointerMissed={() => setActiveModelInstanceId(null)}
     >
       {!roomPhotoUrl && <color attach="background" args={["#161310"]} />}
       {!roomPhotoUrl && <fog attach="fog" args={["#161310", 9, 16]} />}
