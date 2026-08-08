@@ -18,6 +18,7 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<AuthUser>;
   adminLogin: (email: string, password: string) => Promise<AuthUser>;
+  adminRegister: (name: string, email: string, password: string, passwordConfirmation: string, registrationKey: string) => Promise<AuthUser>;
   register: (name: string, email: string, password: string, passwordConfirmation: string) => Promise<AuthUser>;
   logout: () => void;
 }
@@ -50,6 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     login: async (email, password) => remember(await api.post<AuthResponse>("auth/login", { email, password })),
     adminLogin: async (email, password) => remember(await api.post<AuthResponse>("auth/admin/login", { email, password })),
+    adminRegister: async (name, email, password, passwordConfirmation, registrationKey) => remember(await api.post<AuthResponse>("auth/admin/register", {
+      name,
+      email,
+      password,
+      password_confirmation: passwordConfirmation,
+      registration_key: registrationKey,
+    })),
     register: async (name, email, password, passwordConfirmation) => remember(await api.post<AuthResponse>("auth/register", {
       name,
       email,

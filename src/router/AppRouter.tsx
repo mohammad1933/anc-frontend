@@ -23,6 +23,7 @@ import InquiryManagement from "@/pages/InquiryManagement";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import AdminLogin from "@/pages/AdminLogin";
+import AdminRegister from "@/pages/AdminRegister";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { Favorites } from "@/pages/Workspace";
@@ -62,6 +63,7 @@ export function AppRouter() {
             <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           </Route>
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/register" element={<AdminRegister />} />
           <Route path="/dashboard" element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="catalogs" element={<CatalogManagement />} />
