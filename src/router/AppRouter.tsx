@@ -27,6 +27,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { Favorites } from "@/pages/Workspace";
 import { ProjectBoardDetails, ProjectBoards } from "@/pages/ProjectBoards";
+import Discounts from "@/pages/Discounts";
 
 export function AppRouter() {
   return (
@@ -36,6 +37,7 @@ export function AppRouter() {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/catalogs" element={<CatalogsPage />} />
+            <Route path="/discounts" element={<Discounts />} />
             <Route path="/catalogs/:catalogId/colors" element={<RoyalVelvetColors />} />
             <Route path="/catalogs/velvet-8020/colors" element={<RoyalVelvetColors />} />
             <Route path="/catalogs/royal-velvet/colors" element={<Navigate to="/catalogs/velvet-8020/colors" replace />} />

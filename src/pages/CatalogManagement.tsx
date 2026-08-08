@@ -5,7 +5,7 @@ import { api, errorMessage, toFormData, type ApiResource } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Catalog, Category } from "@/types/api";
 
-const emptyForm = { name: "", slug: "", sku: "", category_id: "", description: "", material: "", composition: "", applications: "", specifications: "", status: "draft", is_featured: false, is_new: false, thumbnail_path: "", pdf_path: "" };
+const emptyForm = { name: "", slug: "", sku: "", category_id: "", description: "", material: "", composition: "", price: "", currency: "AED", discount_percent: "", discount_starts_at: "", discount_ends_at: "", applications: "", specifications: "", status: "draft", is_featured: false, is_new: false, thumbnail_path: "", pdf_path: "" };
 
 export default function CatalogManagement() {
   const { data, loading, error, reload } = useApi(() => api.getAll<Catalog>("catalogs", { per_page: 100 }), []);
@@ -33,6 +33,8 @@ export default function CatalogManagement() {
     setForm(catalog ? {
       name: catalog.name, slug: catalog.slug, sku: catalog.sku ?? "", category_id: catalog.category_id ? String(catalog.category_id) : "",
       description: catalog.description ?? "", material: catalog.material ?? "", composition: catalog.composition ?? "", status: catalog.status,
+      price: catalog.price ?? "", currency: catalog.currency ?? "AED", discount_percent: catalog.discount_percent ? String(catalog.discount_percent) : "",
+      discount_starts_at: catalog.discount_starts_at?.slice(0, 16) ?? "", discount_ends_at: catalog.discount_ends_at?.slice(0, 16) ?? "",
       applications: (catalog.applications ?? []).join(", "), specifications: catalog.specifications ? JSON.stringify(catalog.specifications, null, 2) : "",
       is_featured: catalog.is_featured, is_new: catalog.is_new, thumbnail_path: catalog.thumbnail_path ?? "", pdf_path: catalog.pdf_path ?? "",
     } : emptyForm);
@@ -74,7 +76,7 @@ export default function CatalogManagement() {
       <article><h2>TOTAL CATALOGS</h2><strong>{data?.meta.total ?? 0}</strong><span>All records</span></article>
       <article><h2>ACTIVE DESIGNS</h2><strong>{catalogs.filter((item) => item.status === "published").length}</strong><span>Published</span></article>
       <article><h2>MISSING SPECS</h2><strong className="danger">{catalogs.filter((item) => !item.specifications).length}</strong><span className="alert">Action Req.</span></article>
-      <article><h2>FEATURED ITEMS</h2><strong>{catalogs.filter((item) => item.is_featured).length}</strong><span>☆</span></article>
+      <article><h2>ON SALE</h2><strong>{catalogs.filter((item) => item.has_active_discount).length}</strong><span>Active discounts</span></article>
     </div>
     <section className="cm-catalog-panel">
       <div className="cm-filters">
@@ -91,7 +93,7 @@ export default function CatalogManagement() {
         <div><h3>{catalog.name}</h3><p>SKU: {catalog.sku ?? "—"}</p></div>
         <div><span className="category">{catalog.category?.name ?? "UNASSIGNED"}</span></div>
         <div>{catalog.colors_count ?? 0} Colors</div><div className={catalog.status === "published" ? "published" : "muted"}>● {catalog.status}</div>
-        <div>{catalog.is_featured && <span className="featured">☆ FEATURED</span>}{catalog.is_new && <span className="new">NEW</span>}</div>
+        <div>{catalog.has_active_discount && <span className="sale">−{catalog.discount_percent}% SALE</span>}{catalog.is_featured && <span className="featured">☆ FEATURED</span>}{catalog.is_new && <span className="new">NEW</span>}</div>
         <div className="admin-inline-actions"><button onClick={() => openForm(catalog)}>Edit</button><button className="admin-danger" onClick={() => void remove(catalog)}>Delete</button></div>
       </div>)}
       {!loading && !error && filteredCatalogs.length === 0 && <p>No catalogs match the selected filters.</p>}
@@ -104,6 +106,11 @@ export default function CatalogManagement() {
       <label>CATEGORY<select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}><option value="">Unassigned</option>{categoryData?.data.map((category) => <option value={category.id} key={category.id}>{category.name}</option>)}</select></label>
       <label>MATERIAL<input value={form.material} onChange={(e) => setForm({ ...form, material: e.target.value })} /></label>
       <label>COMPOSITION<input value={form.composition} onChange={(e) => setForm({ ...form, composition: e.target.value })} /></label>
+      <label>REGULAR PRICE<input type="number" min="0.01" step="0.01" placeholder="e.g. 250.00" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></label>
+      <label>CURRENCY<select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}><option value="AED">AED</option><option value="USD">USD</option><option value="EUR">EUR</option></select></label>
+      <label>DISCOUNT %<input type="number" min="1" max="99" placeholder="Leave empty for no sale" value={form.discount_percent} onChange={(e) => setForm({ ...form, discount_percent: e.target.value })} /></label>
+      <label>SALE STARTS<input type="datetime-local" value={form.discount_starts_at} onChange={(e) => setForm({ ...form, discount_starts_at: e.target.value })} /><small>Optional — starts immediately if empty</small></label>
+      <label>SALE ENDS<input type="datetime-local" value={form.discount_ends_at} onChange={(e) => setForm({ ...form, discount_ends_at: e.target.value })} /><small>Optional — continues until removed if empty</small></label>
       <label className="full">APPLICATIONS (COMMA SEPARATED)<input value={form.applications} onChange={(e) => setForm({ ...form, applications: e.target.value })} /></label>
       <label className="full">SPECIFICATIONS (JSON OBJECT)<textarea placeholder={'{"width": "140 cm", "weight": "450 gsm"}'} value={form.specifications} onChange={(e) => setForm({ ...form, specifications: e.target.value })} /></label>
       <label>STATUS<select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="draft">Draft</option><option value="published">Published</option><option value="hidden">Hidden</option></select></label>

@@ -376,20 +376,22 @@ interface FabricCardProps {
   id: number; name: string; sku: string; badge: string | null; description: string; category: string; type: string; material: string;
   composition: string; applications: string[]; colorFamilies: string[]; colorCount: number; isFeatured: boolean;
   isNew: boolean; hasSpecifications: boolean; hasPdf: boolean; viewCount: number; image: string;
+  price?: string; salePrice?: string; currency: string; discountPercent?: number; hasActiveDiscount: boolean;
 }
 
-const FabricCard: React.FC<FabricCardProps> = ({ id, name, badge, description, type, composition, image }) => (
+const FabricCard: React.FC<FabricCardProps> = ({ id, name, badge, description, type, composition, image, price, salePrice, currency, discountPercent, hasActiveDiscount }) => (
   <Link
     to={`/catalogs/${id}/colors`}
     style={{ backgroundColor: "#FFFFFF", border: "1px solid #EDECE8", borderRadius: "6px", overflow: "hidden", textDecoration: "none", display: "block" }}
     className="group cursor-pointer transition-shadow duration-300 hover:shadow-md"
   >
-    <div className="overflow-hidden" style={{ height: "200px" }}>
+    <div className="overflow-hidden relative" style={{ height: "200px" }}>
       <img
         src={image}
         alt={name}
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
       />
+      {hasActiveDiscount && <span style={{ position: "absolute", top: "12px", right: "12px", background: "#173d31", color: "white", padding: "7px 10px", fontSize: "10px", fontWeight: 700, letterSpacing: ".08em" }}>−{discountPercent}%</span>}
     </div>
     <div style={{ padding: "16px" }}>
       <div className="flex items-center gap-2 mb-1">
@@ -412,6 +414,10 @@ const FabricCard: React.FC<FabricCardProps> = ({ id, name, badge, description, t
         )}
       </div>
       <p style={{ color: "#8A857E", fontSize: "11px", lineHeight: 1.5, marginBottom: "12px" }}>{description}</p>
+      {price && <div className="flex items-baseline gap-2 mb-3">
+        {hasActiveDiscount && <del style={{ color: "#9B9590", fontSize: "11px" }}>{currency} {Number(price).toFixed(2)}</del>}
+        <strong style={{ color: hasActiveDiscount ? "#173d31" : "#3D3830", fontSize: "15px" }}>{currency} {Number(salePrice ?? price).toFixed(2)}</strong>
+      </div>}
       <div style={{ borderTop: "1px solid #EDECE8", paddingTop: "10px" }} className="flex justify-between">
         <div>
           <p style={{ color: "#B0ABA5", fontSize: "9px", letterSpacing: "0.08em" }}>Type</p>
@@ -625,6 +631,11 @@ const CatalogsPage: React.FC = () => {
     hasPdf: Boolean(catalog.pdf_path),
     viewCount: catalog.view_count ?? 0,
     image: catalog.thumbnail_path ?? textileImages.velvet,
+    price: catalog.price,
+    salePrice: catalog.sale_price,
+    currency: catalog.currency ?? "AED",
+    discountPercent: catalog.discount_percent,
+    hasActiveDiscount: catalog.has_active_discount,
   }));
 
   const filterOptions = {

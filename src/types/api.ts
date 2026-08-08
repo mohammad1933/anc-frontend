@@ -6,6 +6,8 @@ export interface Category {
 export interface Catalog {
   id: number; category_id?: number; name: string; slug: string; sku?: string; description?: string;
   material?: string; composition?: string; applications?: string[]; specifications?: Record<string, string>;
+  price?: string; currency: string; discount_percent?: number; discount_starts_at?: string; discount_ends_at?: string;
+  has_active_discount: boolean; sale_price?: string;
   thumbnail_path?: string; pdf_path?: string; status: "draft" | "published" | "hidden";
   is_featured: boolean; is_new: boolean; view_count?: number; colors_count?: number; category?: Category; colors?: Color[];
 }

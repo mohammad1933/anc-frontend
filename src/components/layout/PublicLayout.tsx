@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/AuthContext";
 const links = [
   ["HOME", "/"],
   ["CATALOGS", "/catalogs"],
+  ["DISCOUNTS", "/discounts"],
   ["FABRIC MOCKUP", "/mockup"],
   ["SERVICES", "/services"],
   ["CONTACT", "/contact"],
@@ -63,7 +64,7 @@ export default function PublicLayout() {
       <footer className="public-footer">
         <div className="public-footer-grid">
           <div><h3>{company.name}</h3><p>Luxurious curtain, upholstery, and indoor fabrics from the ANC brand. Founded in Lebanon in {company.founded}; serving the UAE from Sharjah since {company.uaeOpened}.</p></div>
-          <div><h4>DISCOVER</h4><Link to="/catalogs">Catalogs</Link><Link to="/services">Services</Link><Link to="/about-us">About Us</Link></div>
+          <div><h4>DISCOVER</h4><Link to="/catalogs">Catalogs</Link><Link to="/discounts">Discounts</Link><Link to="/services">Services</Link><Link to="/about-us">About Us</Link></div>
           <div><h4>SUPPORT</h4><Link to="/contact">Contact</Link><Link to="/faq">FAQ</Link><Link to="/request-sample">Request Sample</Link><a href={whatsappUrl()} target="_blank" rel="noreferrer">WhatsApp</a></div>
           <div><h4>NEWSLETTER</h4><form onSubmit={subscribe}><input required value={newsletterEmail} onChange={(event) => setNewsletterEmail(event.target.value)} type="email" placeholder="Email Address" aria-label="Email Address" /><button type="submit">JOIN</button></form>{newsletterStatus && <small role="status">{newsletterStatus}</small>}</div>
         </div>
