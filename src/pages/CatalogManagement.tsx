@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from "react";
 import "./CatalogManagement.css";
 import AdminModal from "@/components/admin/AdminModal";
-import { api, errorMessage, toFormData, type ApiResource } from "@/lib/api";
+import { api, assetUrl, errorMessage, toFormData, type ApiResource } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Catalog, Category } from "@/types/api";
 
@@ -89,7 +89,7 @@ export default function CatalogManagement() {
       <div className="cm-head"><span>THUMBNAIL</span><span>CATALOG NAME</span><span>CATEGORY</span><span>COLORS</span><span>STATUS</span><span>ATTRIBUTES</span><span>ACTIONS</span></div>
       {loading && <p role="status">Loading catalogs…</p>}{error && <p role="alert">{error}</p>}
       {filteredCatalogs.map((catalog) => <div className="cm-row" key={catalog.id}>
-        {catalog.thumbnail_path ? <img className="cm-thumb" src={catalog.thumbnail_path} alt="" /> : <div className="cm-no-image">▧</div>}
+        {catalog.thumbnail_path ? <img className="cm-thumb" src={assetUrl(catalog.thumbnail_path)} alt="" /> : <div className="cm-no-image">▧</div>}
         <div><h3>{catalog.name}</h3><p>SKU: {catalog.sku ?? "—"}</p></div>
         <div><span className="category">{catalog.category?.name ?? "UNASSIGNED"}</span></div>
         <div>{catalog.colors_count ?? 0} Colors</div><div className={catalog.status === "published" ? "published" : "muted"}>● {catalog.status}</div>

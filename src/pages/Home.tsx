@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { img as textileImages } from "@/pages/AboutUs";
 import { company, whatsappUrl } from "@/constants/company";
-import { api } from "@/lib/api";
+import { api, assetUrl } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Catalog } from "@/types/api";
 import visualize from '../assets/Untitled.png';
@@ -458,7 +458,7 @@ const CollectionSection: React.FC<{ catalogs: Catalog[] }> = ({ catalogs }) => (
           >
             <div style={{ aspectRatio: "4/5", overflow: "hidden", position: "relative" }}>
               <img
-                src={item.thumbnail_path ?? textileImages.velvet}
+                src={assetUrl(item.thumbnail_path) || textileImages.velvet}
                 alt={item.name}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 className="group-hover:scale-105 transition-transform duration-700"

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { img as textileImages } from "@/pages/AboutUs";
 import "./RoyalVelvetColors.css";
 import { businessPolicies, whatsappUrl } from "@/constants/company";
-import { api, apiUrl, type ApiResource } from "@/lib/api";
+import { api, apiUrl, assetUrl, type ApiResource } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Catalog, Color } from "@/types/api";
 import { useAuth } from "@/hooks/AuthContext";
@@ -129,7 +129,7 @@ export default function RoyalVelvetColors() {
         style: color.type,
         stock: color.stock_status === "in_stock" ? "AVAILABLE" : color.stock_status.replaceAll("_", " ").toUpperCase(),
         stockQuantity: color.stock_quantity,
-        texture: color.swatch_url ?? color.swatch_path ?? "",
+        texture: assetUrl(color.swatch_url ?? color.swatch_path),
         previewTexture: color.texture_url
           ?? (color.swatch_url || color.swatch_path ? apiUrl(`colors/${color.id}/texture`) : null),
       };

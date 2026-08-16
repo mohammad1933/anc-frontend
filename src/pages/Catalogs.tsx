@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { img as textileImages } from "@/pages/AboutUs";
-import { api } from "@/lib/api";
+import { api, assetUrl } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Catalog } from "@/types/api";
 import { paginationItems } from "@/utils/pagination";
@@ -630,7 +630,7 @@ const CatalogsPage: React.FC = () => {
     hasSpecifications: Boolean(catalog.specifications && Object.keys(catalog.specifications).length),
     hasPdf: Boolean(catalog.pdf_path),
     viewCount: catalog.view_count ?? 0,
-    image: catalog.thumbnail_path ?? textileImages.velvet,
+    image: assetUrl(catalog.thumbnail_path) || textileImages.velvet,
     price: catalog.price,
     salePrice: catalog.sale_price,
     currency: catalog.currency ?? "AED",

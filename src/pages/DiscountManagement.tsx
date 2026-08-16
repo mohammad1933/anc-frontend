@@ -1,6 +1,6 @@
 import { type FormEvent, useMemo, useState } from "react";
 import AdminModal from "@/components/admin/AdminModal";
-import { api, errorMessage, type ApiResource } from "@/lib/api";
+import { api, assetUrl, errorMessage, type ApiResource } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Catalog } from "@/types/api";
 import "./DiscountManagement.css";
@@ -87,7 +87,7 @@ export default function DiscountManagement() {
       <div className="dm-list">{visible.map((catalog) => {
         const state = saleState(catalog);
         return <article key={catalog.id}>
-          {catalog.thumbnail_path ? <img src={catalog.thumbnail_path} alt="" /> : <div className="dm-placeholder">ANC</div>}
+          {catalog.thumbnail_path ? <img src={assetUrl(catalog.thumbnail_path)} alt="" /> : <div className="dm-placeholder">ANC</div>}
           <div className="dm-name"><small>{catalog.category?.name ?? "COLLECTION"}</small><h3>{catalog.name}</h3><span>{catalog.sku ?? "No SKU"}</span></div>
           <div className="dm-price"><del>{money(catalog.price, catalog.currency)}</del><strong>{money(catalog.sale_price ?? (catalog.price ? String(Number(catalog.price) * (100 - (catalog.discount_percent ?? 0)) / 100) : undefined), catalog.currency)}</strong></div>
           <b className="dm-percent">−{catalog.discount_percent}%</b>

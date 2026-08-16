@@ -4,9 +4,21 @@ const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL ??
   "https://anc-backend-production-89ca.up.railway.app/api/v1"
 ).replace(/\/$/, "");
+const API_ORIGIN = new URL(API_BASE_URL).origin;
 
 export function apiUrl(path: string): string {
   return `${API_BASE_URL}/${path.replace(/^\//, "")}`;
+}
+
+/** Resolves Laravel storage paths returned by the API into displayable URLs. */
+export function assetUrl(path?: string | null): string {
+  if (!path || path.startsWith("data:") || path.startsWith("blob:")) return path ?? "";
+
+  try {
+    return new URL(path).toString();
+  } catch {
+    return new URL(`/${path.replace(/^\/+/, "")}`, API_ORIGIN).toString();
+  }
 }
 
 export interface PaginatedResponse<T> {

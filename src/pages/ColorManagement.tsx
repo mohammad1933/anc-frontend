@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useState } from "react";
 import "./ColorManagement.css";
 import AdminModal from "@/components/admin/AdminModal";
-import { api, errorMessage, toFormData } from "@/lib/api";
+import { api, assetUrl, errorMessage, toFormData } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Catalog, Color } from "@/types/api";
 import { paginationItems } from "@/utils/pagination";
@@ -13,7 +13,7 @@ interface ColorCardData {
 function ColorCard({ color, onEdit, onDelete }: { color: ColorCardData; onEdit: (color: Color) => void; onDelete: (color: Color) => Promise<void> }) {
   return (
     <article className="cl-card">
-      <div className={`cl-swatch ${color.tone}`} style={color.source.swatch_path ? { backgroundImage: `url(${color.source.swatch_path})` } : undefined}>
+      <div className={`cl-swatch ${color.tone}`} style={color.source.swatch_path ? { backgroundImage: `url(${assetUrl(color.source.swatch_path)})` } : undefined}>
         <span>{color.type}</span>
         {color.level === "out" && <b>OUT OF STOCK</b>}
       </div>

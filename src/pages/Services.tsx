@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { img as textileImages } from "@/pages/AboutUs";
-import { api } from "@/lib/api";
+import { api, assetUrl } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Service } from "@/types/api";
 
@@ -23,7 +23,7 @@ export default function Services() {
       {error && <p role="alert" className="text-red-700">{error}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {services.map((service) => <article className="bg-white border border-stone-200 rounded-lg overflow-hidden flex flex-col" key={service.id}>
-          <img className="w-full h-56 object-cover" src={service.image_path ?? textileImages.swatches} alt={service.title} />
+          <img className="w-full h-56 object-cover" src={assetUrl(service.image_path) || textileImages.swatches} alt={service.title} />
           <div className="p-7 flex flex-col grow">
             <span className="text-[10px] tracking-[.14em] font-bold text-amber-800">{(service.type ?? "SERVICE").toUpperCase()}</span>
             <h2 className="mt-3 text-xl font-semibold">{service.title}</h2>

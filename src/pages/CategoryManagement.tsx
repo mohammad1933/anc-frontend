@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from "react";
 import "./CategoryManagement.css";
 import AdminModal from "@/components/admin/AdminModal";
-import { api, errorMessage, toFormData, type ApiResource } from "@/lib/api";
+import { api, assetUrl, errorMessage, toFormData, type ApiResource } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import type { Category } from "@/types/api";
 
@@ -34,7 +34,7 @@ export default function CategoryManagement() {
     <section className="cg-heading"><div><p>Admin › Category Management</p><h1>Fabric Categories</h1><h2>Define and organize the textile architecture.</h2></div><button onClick={() => edit()}>＋ ADD NEW CATEGORY</button></section>
     {loading && <p role="status">Loading categories…</p>}{error && <p role="alert">{error}</p>}
     <section className="cg-grid">{categories.map((category) => <article className="cg-card" key={category.id}>
-      <div className="cg-image" style={category.image_path ? { backgroundImage: `url(${category.image_path})` } : undefined} />
+      <div className="cg-image" style={category.image_path ? { backgroundImage: `url(${assetUrl(category.image_path)})` } : undefined} />
       <div className="cg-card-copy"><div><h2>{category.name}</h2><span>{category.catalogs_count ?? 0} Catalogs</span></div><p>{category.description}</p>
         <footer><span>{category.status.toUpperCase()}</span><div className="admin-inline-actions"><button onClick={() => edit(category)}>Edit</button><button className="admin-danger" onClick={() => void remove(category)}>Delete</button></div></footer>
       </div></article>)}</section>
