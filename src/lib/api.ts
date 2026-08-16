@@ -1,5 +1,8 @@
+// Configure VITE_API_BASE_URL per deployment when needed. The Railway URL is
+// the production fallback so deployed builds do not depend on the Vite proxy.
 const API_BASE_URL = (
-  "https://anc-backend-production.up.railway.app/api/v1"
+  import.meta.env.VITE_API_BASE_URL ??
+  "https://anc-backend-production-89ca.up.railway.app/api/v1"
 ).replace(/\/$/, "");
 
 export function apiUrl(path: string): string {
