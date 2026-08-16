@@ -18,7 +18,11 @@ export default defineConfig({
     open: true,
     proxy: {
       "/api": {
-        target: process.env.VITE_LARAVEL_URL ?? "http://127.0.0.1:8000",
+        target: process.env.VITE_LARAVEL_URL ?? "https://anc-backend-production-89ca.up.railway.app",
+        changeOrigin: true,
+      },
+      "/storage": {
+        target: process.env.VITE_LARAVEL_URL ?? "https://anc-backend-production-89ca.up.railway.app",
         changeOrigin: true,
       },
     },

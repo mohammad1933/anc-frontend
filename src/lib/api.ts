@@ -1,10 +1,11 @@
 // Configure VITE_API_BASE_URL per deployment when needed. The Railway URL is
 // the production fallback so deployed builds do not depend on the Vite proxy.
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ??
-  "https://anc-backend-production-89ca.up.railway.app/api/v1"
+  import.meta.env.DEV
+    ? "/api/v1"
+    : (import.meta.env.VITE_API_BASE_URL ?? "https://anc-backend-production-89ca.up.railway.app/api/v1")
 ).replace(/\/$/, "");
-const API_ORIGIN = new URL(API_BASE_URL).origin;
+const API_ORIGIN = new URL(API_BASE_URL, window.location.origin).origin;
 
 export function apiUrl(path: string): string {
   return `${API_BASE_URL}/${path.replace(/^\//, "")}`;
@@ -15,7 +16,13 @@ export function assetUrl(path?: string | null): string {
   if (!path || path.startsWith("data:") || path.startsWith("blob:")) return path ?? "";
 
   try {
-    return new URL(path).toString();
+    const url = new URL(path);
+    // Laravel may persist URLs generated with a local APP_URL. Always serve
+    // those files from the configured API host instead of localhost:8000.
+    if (["localhost", "127.0.0.1", "0.0.0.0"].includes(url.hostname)) {
+      return new URL(`${url.pathname}${url.search}`, API_ORIGIN).toString();
+    }
+    return url.toString();
   } catch {
     return new URL(`/${path.replace(/^\/+/, "")}`, API_ORIGIN).toString();
   }
