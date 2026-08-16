@@ -28,6 +28,7 @@ import { AuthProvider } from "@/hooks/AuthContext";
 import { Favorites } from "@/pages/Workspace";
 import { ProjectBoardDetails, ProjectBoards } from "@/pages/ProjectBoards";
 import Discounts from "@/pages/Discounts";
+import DiscountManagement from "@/pages/DiscountManagement";
 
 export function AppRouter() {
   return (
@@ -65,6 +66,7 @@ export function AppRouter() {
           <Route path="/dashboard" element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="catalogs" element={<CatalogManagement />} />
+            <Route path="discounts" element={<DiscountManagement />} />
             <Route path="colors" element={<ColorManagement />} />
             <Route path="requests" element={<RequestManagement />} />
             <Route path="inquiries" element={<InquiryManagement />} />

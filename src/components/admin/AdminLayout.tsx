@@ -9,6 +9,7 @@ const menuGroups = [
     items: [
       ["▦", "Dashboard", "/dashboard"],
       ["▤", "Catalogs", "/dashboard/catalogs"],
+      ["％", "Discounts", "/dashboard/discounts"],
       ["❀", "Colors", "/dashboard/colors"],
       ["♙", "Categories", "/dashboard/categories"],
       ["⚒", "Services", "/dashboard/services"],

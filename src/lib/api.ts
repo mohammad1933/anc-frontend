@@ -1,6 +1,6 @@
 const API_BASE_URL = (
   import.meta.env.VITE_API_URL ??
-  "https://astonishing-celebration-production-9392.up.railway.app/api/v1"
+  "https://anc-backend-production.up.railway.app/api/v1"
 ).replace(/\/$/, "");
 
 export function apiUrl(path: string): string {
